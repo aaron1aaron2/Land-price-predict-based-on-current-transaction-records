@@ -11,7 +11,7 @@ import os
 import glob
 import pandas as pd
 
-from tqdm import tqdm
+# from tqdm import tqdm
 
 path = 'data/merge_data'
 
