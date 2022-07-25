@@ -1,2 +1,2 @@
-# Land-price-predict-based-on-current-transaction-records
+# Land-price-predict-based-on-transaction-records
  2022-AI
