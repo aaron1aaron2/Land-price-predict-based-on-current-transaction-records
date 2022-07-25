@@ -4,7 +4,7 @@ Github: https://github.com/aaron1aaron2
 Email: aaron1aaron2@gmail.com
 Create Date: 2022.07.18
 Last Update: 2022.07.23
-Describe: 
+Describe: 合併不同季的資料，這部分只取桃園(h)
 """
 import os
 import zipfile
