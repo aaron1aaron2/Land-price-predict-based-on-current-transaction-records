@@ -20,8 +20,13 @@ transaction_df = pd.read_csv('data/merge_data/h_lvr_land_a.csv', low_memory=Fals
 land_transaction_df = transaction_df[transaction_df["交易標的"] == "土地"]
 land_transaction_df['土地位置'] = '桃園市' + land_transaction_df['鄉鎮市區'] + land_transaction_df['土地位置建物門牌']
 
-land_transaction_df.to_csv(os.path.join(output, 'transaction_land.csv'), index=False)
+# 處理亂碼
+{'榔段上榔小段': '槺榔段上槺榔小段',
+'榔段下榔小段': '槺榔段下槺榔小段',
+'番婆段': '番婆坟段'}
 
+
+land_transaction_df.to_csv(os.path.join(output, 'transaction_land.csv'), index=False)
 # 處理預售屋資訊 ==============================
 
 
