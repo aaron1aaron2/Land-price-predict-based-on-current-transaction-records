@@ -51,7 +51,7 @@ def main():
     landid_df = df[args.landid_col].drop_duplicates().reset_index(drop=True)
 
     landid_extract_df = landid_df.str.extract(args.extract_pattern)
-    landid_df[landid_extract_df.isna().any(axis=1)].to_csv(os.path.join(args.output_folder, 'pattern_miss.csv'), index=False)
+    landid_df[landid_extract_df.isna().any(axis=1)].to_csv(os.path.join(args.output_folder, 'pattern_miss.csv'))
     pd.DataFrame(landid_df).join(landid_extract_df).to_csv(os.path.join(args.output_folder, 'extract_result.csv'), index=False)
 
     embed()
