@@ -14,12 +14,13 @@ output = 'data/sort_data'
 os.makedirs(output, exist_ok=True)
 
 # 處理交易資訊 ==============================
+## 土地
 transaction_df = pd.read_csv('data/merge_data/h_lvr_land_a.csv', low_memory=False)
 
-# tran_build_df = pd.read_csv('data/merge_data/h_lvr_land_a_build.csv', low_memory=False)
-# tran_land_df = pd.read_csv('data/merge_data/h_lvr_land_a_land.csv', low_memory=False)
+land_transaction_df = transaction_df[transaction_df["交易標的"] == "土地"]
+land_transaction_df['土地位置'] = '桃園市' + land_transaction_df['鄉鎮市區'] + land_transaction_df['土地位置建物門牌']
 
-transaction_df[transaction_df["交易標的"] == "土地"].to_csv(os.path.join(output, 'transaction_land.csv'), index=False)
+land_transaction_df.to_csv(os.path.join(output, 'transaction_land.csv'), index=False)
 
 # 處理預售屋資訊 ==============================
 
@@ -27,3 +28,10 @@ transaction_df[transaction_df["交易標的"] == "土地"].to_csv(os.path.join(o
 
 
 # 處理租賃資訊 ==============================
+## 土地
+rent_df = pd.read_csv('data/merge_data/h_lvr_land_c.csv', low_memory=False)
+
+land_rent_df = rent_df[rent_df["交易標的"] == "土地"]
+land_rent_df['土地位置'] = '桃園市' + land_rent_df['鄉鎮市區'] + land_rent_df['土地位置建物門牌']
+
+land_rent_df.to_csv(os.path.join(output, 'rent_land.csv'), index=False)
