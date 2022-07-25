@@ -6,6 +6,7 @@ Create Date: 2022.07.25
 Last Update: 2022.07.25
 Describe: 各資料整理 & 特殊前處理
 """
+from dataclasses import replace
 import os
 import pandas as pd
 
@@ -18,12 +19,20 @@ os.makedirs(output, exist_ok=True)
 transaction_df = pd.read_csv('data/merge_data/h_lvr_land_a.csv', low_memory=False)
 
 land_transaction_df = transaction_df[transaction_df["交易標的"] == "土地"]
-land_transaction_df['土地位置'] = '桃園市' + land_transaction_df['鄉鎮市區'] + land_transaction_df['土地位置建物門牌']
 
 # 處理亂碼
-{'榔段上榔小段': '槺榔段上槺榔小段',
-'榔段下榔小段': '槺榔段下槺榔小段',
-'番婆段': '番婆坟段'}
+replace_dt = {'.榔段上.榔小段': '槺榔段上槺榔小段',
+'.榔段下.榔小段': '槺榔段下槺榔小段',
+'.頭洲段.頭洲小段': '犂頭洲段犂頭洲小段',
+'番婆.段': '番婆坟段'}
+
+for i,v in replace_dt.items():
+    land_transaction_df['土地位置建物門牌'] = land_transaction_df['土地位置建物門牌'].str.replace(i, v)
+land_transaction_df['土地位置'] = '桃園市' + land_transaction_df['鄉鎮市區'] + land_transaction_df['土地位置建物門牌']
+
+# 移除空值
+land_transaction_df = land_transaction_df[~land_transaction_df['土地位置'].isna()]
+land_transaction_df = land_transaction_df[~land_transaction_df['單價元平方公尺'].isna()]
 
 
 land_transaction_df.to_csv(os.path.join(output, 'transaction_land.csv'), index=False)
