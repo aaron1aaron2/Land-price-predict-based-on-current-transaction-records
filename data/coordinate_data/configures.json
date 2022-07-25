@@ -1,0 +1,6 @@
+{
+  "file_path": "data/sort_data/transaction_land.csv",
+  "output_folder": "data/coordinate_data",
+  "landid_col": "土地位置",
+  "extract_pattern": "(?P<county>\\w+市)(?P<district>\\w+區)(?P<section>\\w+段)(?P<number>.+)地號"
+}
