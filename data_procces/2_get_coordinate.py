@@ -14,7 +14,7 @@ import requests
 import pandas as pd
 
 from IPython import embed
-# from tqdm import tqdm
+from tqdm import tqdm
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -27,10 +27,30 @@ def get_args():
                         default='(?P<county>\w+市)(?P<district>\w+區)(?P<section>\w+段)(?P<number>.+)地號', 
                         help='土地資訊切分 regex pattern。(須包含 county、district、section、number 四個資訊，可參考 default)')
 
-
     args = parser.parse_args()
 
     return args
+
+def extract_pattern(df, pattern, output):
+    extract_df = df.str.extract(pattern)
+
+    # 輸出檢查用資料
+    df[extract_df.isna().any(axis=1)].to_csv(os.path.join(output, 'pattern_miss.csv'))
+    pd.DataFrame(df).join(extract_df).to_csv(os.path.join(output, 'extract_result.csv'), index=False)
+
+    return extract_df
+
+def get_coordinate(df):
+    land_addr_dt_ls = df.to_dict(orient="records")
+    for i in tqdm(land_addr_dt_ls):
+        url = f"https://twland.ronny.tw/index/search?lands[]={i['county']},{i['section']},{i['number']}"
+        r = requests.get(url)
+        if r.status_code != 200:
+            print('error!')
+        respond_data = r.json()
+
+    embed()
+    exit()
 
 def saveJson(data, path):
     with open(path, 'w', encoding='utf-8') as outfile:  
@@ -49,15 +69,13 @@ def main():
     df = pd.read_csv(args.file_path, low_memory=False)
 
     assert args.landid_col in df.columns, f"{args.landid_col} attribute could not be found in input file"
-    landid_df = df[args.landid_col].drop_duplicates().reset_index(drop=True)
+    land_addr_df = df[args.landid_col].drop_duplicates().reset_index(drop=True)
 
-    landid_extract_df = landid_df.str.extract(args.extract_pattern)
-    landid_df[landid_extract_df.isna().any(axis=1)].to_csv(os.path.join(args.output_folder, 'pattern_miss.csv'))
-    pd.DataFrame(landid_df).join(landid_extract_df).to_csv(os.path.join(args.output_folder, 'extract_result.csv'), index=False)
+    # 抽取土地資訊
+    extract_df = extract_pattern(land_addr_df, args.extract_pattern, args.output_folder)
 
-    embed()
-    exit()
-
+    # 爬取座標資料
+    coordinate_df = get_coordinate(extract_df)
 
 
     pass
