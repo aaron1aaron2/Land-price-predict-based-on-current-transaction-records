@@ -22,12 +22,12 @@ land_transaction_df = transaction_df[transaction_df["交易標的"] == "土地"]
 
 # 處理亂碼
 replace_dt = {
-    '.榔段上.榔小段': '槺榔段上槺榔小段',
-    '.榔段下.榔小段': '槺榔段下槺榔小段',
-    '.頭洲段.頭洲小段': '犂頭洲段犂頭洲小段',
-    '番婆.段': '番婆坟段'
+    '.+榔段上.+榔小段': '槺榔段上槺榔小段',
+    '.+榔段下.+榔小段': '槺榔段下槺榔小段',
+    '.+頭洲段.+頭洲小段': '犂頭洲段犂頭洲小段',
+    '番婆.+段': '番婆坟段'
     }
-
+# 815b榔段上815b榔小段
 for i,v in replace_dt.items():
     land_transaction_df['土地位置建物門牌'] = land_transaction_df['土地位置建物門牌'].str.replace(i, v)
 land_transaction_df['土地位置'] = '桃園市' + land_transaction_df['鄉鎮市區'] + land_transaction_df['土地位置建物門牌']
