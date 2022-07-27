@@ -9,6 +9,7 @@ Describe: 獲取土地經緯度座標，來源 -> https://twland.ronny.tw/
 
 import os
 import json
+import time
 import argparse
 import requests
 import pandas as pd
@@ -23,9 +24,10 @@ def get_args():
     parser.add_argument('--output_folder', type=str, default='data/coordinate_data')
 
     parser.add_argument('--landid_col', type=str, default='土地位置', help='土地位置與地號欄位名稱')
+
     parser.add_argument('--extract_pattern', type=str, 
                         default='(?P<county>\w+市)(?P<district>\w+區)(?P<section>\w+段)(?P<number>.+)地號', 
-                        help='土地資訊切分 regex pattern。(須包含 county、district、section、number 四個資訊，可參考 default)')
+                        help='土地資訊切分 regex pattern。須包含 county、district、section、number 四個資訊，可參考 default format。')
 
     args = parser.parse_args()
 
@@ -35,34 +37,77 @@ def extract_pattern(df, pattern, output):
     extract_df = df.str.extract(pattern)
 
     # 輸出檢查用資料
-    df[extract_df.isna().any(axis=1)].to_csv(os.path.join(output, 'pattern_miss.csv'))
+    df[extract_df.isna().any(axis=1)].to_csv(os.path.join(output, 'extract_miss.csv'))
     pd.DataFrame(df).join(extract_df).to_csv(os.path.join(output, 'extract_result.csv'), index=False)
 
     return extract_df
 
-def get_coordinate(df):
+def get_coordinate(df, output):
+    result_path = os.path.join(output, 'crawler_result.csv')
+    miss_path = os.path.join(output, 'crawler_miss.csv')
+
+    print(f'Total tasks: {df.shape[0]}')
+    # 爬蟲進度恢復
+    if os.path.exists(result_path):
+        tmp = df['county'] + df['district'] + df['section'] + df['number']
+        progress_df = pd.read_csv(result_path)
+
+        df = df[~tmp.isin(progress_df['county'] + progress_df['district'] + progress_df['section'] + progress_df['number'])]
+
+        del tmp; del progress_df
+
+        print(f'Current progress: {df.shape[0]}\n')
+
+    # 爬蟲
     land_addr_dt_ls = df.to_dict(orient="records")
     for i in tqdm(land_addr_dt_ls):
         url = f"https://twland.ronny.tw/index/search?lands[]={i['county']},{i['section']},{i['number']}"
         r = requests.get(url)
+
         if r.status_code != 200:
             print('error!')
-        respond_data = r.json()
 
-    embed()
-    exit()
+        try:
+            respond_data = r.json()
 
-def saveJson(data, path):
-    with open(path, 'w', encoding='utf-8') as outfile:  
-        json.dump(data, outfile, indent=2, ensure_ascii=False)
+            properties = respond_data["features"][0]["properties"]
+
+            saveJson(properties, 
+                    path=os.path.join(output, 'record.json'),
+                    mode='append_row')
+
+            coordinate_dt = {k:v for k,v in properties.items() if k in ['xcenter', 'ycenter']}
+
+            if len(coordinate_dt)==2:
+                i.update(coordinate_dt)
+                pd.DataFrame([i]).to_csv(result_path, mode='a', index=False, header=not os.path.exists(result_path))
+            else:
+                pd.DataFrame([i]).to_csv(miss_path, mode='a', index=False, header=not os.path.exists(miss_path))
+
+        except:
+            pd.DataFrame([i]).to_csv(miss_path, mode='a', index=False, header=not os.path.exists(miss_path))
+
+        time.sleep(0.5)
+
+def saveJson(data, path, mode):
+    if mode == 'nor_write':
+        with open(path, 'w', encoding='utf-8') as outfile:  
+            json.dump(data, outfile, indent=2, ensure_ascii=False)
+    if mode == 'append_row':
+        with open(path, 'a', encoding='utf-8') as outfile:  
+            json.dump(data, outfile, ensure_ascii=False)
+            outfile.write('\n')
 
 def main():
-    # 參數
+    # 參數處理
     args = get_args()
-    print("="*20 + '\n' + str(args))
-    saveJson(args.__dict__, os.path.join(args.output_folder, 'configures.json'))
+    print("="*20 + '\n' + str(args) + '\n')
 
     os.makedirs(args.output_folder, exist_ok=True)
+
+    saveJson(args.__dict__, 
+            path=os.path.join(args.output_folder, 'configures.json'),
+            mode='nor_write')
 
     # 讀取資料
     assert os.path.exists(args.file_path), f"Input file could not be found at {args.file_path}"
@@ -75,10 +120,7 @@ def main():
     extract_df = extract_pattern(land_addr_df, args.extract_pattern, args.output_folder)
 
     # 爬取座標資料
-    coordinate_df = get_coordinate(extract_df)
-
-
-    pass
+    coordinate_df = get_coordinate(extract_df, args.output_folder)
 
 if __name__ == '__main__':
     main()
