@@ -30,6 +30,7 @@ replace_dt = {
 
 for i,v in replace_dt.items():
     land_transaction_df['土地位置建物門牌'] = land_transaction_df['土地位置建物門牌'].str.replace(i, v)
+    
 land_transaction_df['土地位置'] = '桃園市' + land_transaction_df['鄉鎮市區'] + land_transaction_df['土地位置建物門牌']
 
 # 移除空值
