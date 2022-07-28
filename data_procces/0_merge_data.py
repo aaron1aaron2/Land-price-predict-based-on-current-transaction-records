@@ -16,7 +16,7 @@ from tqdm import tqdm
 
 doc_fils = ['manifest.csv', 'build.ttt', 'schema-build.csv', 'schema-land.csv', 'schema-main.csv', 'schema-park.csv']
 
-output = 'data/merge_data'
+output = 'data/procces/0_merge_data'
 path = 'data/rawdata/歷年時價登入'
 
 os.makedirs(output, exist_ok=True)
