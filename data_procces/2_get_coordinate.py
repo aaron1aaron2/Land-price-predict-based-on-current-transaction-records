@@ -3,7 +3,7 @@ Author: 何彥南 (yen-nan ho)
 Github: https://github.com/aaron1aaron2
 Email: aaron1aaron2@gmail.com
 Create Date: 2022.07.25
-Last Update: 2022.07.25
+Last Update: 2022.07.27
 Describe: 獲取土地經緯度座標，來源 -> https://twland.ronny.tw/
 """
 
@@ -14,7 +14,6 @@ import argparse
 import requests
 import pandas as pd
 
-from IPython import embed
 from tqdm import tqdm
 
 def get_args():
