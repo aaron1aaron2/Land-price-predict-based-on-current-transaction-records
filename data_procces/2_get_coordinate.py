@@ -4,7 +4,7 @@ Github: https://github.com/aaron1aaron2
 Email: aaron1aaron2@gmail.com
 Create Date: 2022.07.25
 Last Update: 2022.07.27
-Describe: 獲取土地經緯度座標，來源 -> https://twland.ronny.tw/
+Describe: 獲取土地經緯度座標，來源 「地號 GeoJSON API」、「地籍圖資網路便民服務系統」 -> https://twland.ronny.tw/、https://easymap.land.moi.gov.tw/
 """
 
 import os
