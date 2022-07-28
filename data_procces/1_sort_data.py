@@ -10,13 +10,13 @@ Describe: 各資料整理 & 特殊前處理
 import os
 import pandas as pd
 
-output = 'data/sort_data'
+output = 'data/procces/1_sort_data'
 
 os.makedirs(output, exist_ok=True)
 
 # 處理交易資訊 ==============================
 ## 土地
-transaction_df = pd.read_csv('data/merge_data/h_lvr_land_a.csv', low_memory=False)
+transaction_df = pd.read_csv('data/procces/0_merge_data/h_lvr_land_a.csv', low_memory=False)
 
 land_transaction_df = transaction_df[transaction_df["交易標的"] == "土地"]
 
@@ -27,7 +27,7 @@ replace_dt = {
     '.+頭洲段.+頭洲小段': '犂頭洲段犂頭洲小段',
     '番婆.+段': '番婆坟段'
     }
-# 815b榔段上815b榔小段
+
 for i,v in replace_dt.items():
     land_transaction_df['土地位置建物門牌'] = land_transaction_df['土地位置建物門牌'].str.replace(i, v)
 land_transaction_df['土地位置'] = '桃園市' + land_transaction_df['鄉鎮市區'] + land_transaction_df['土地位置建物門牌']
