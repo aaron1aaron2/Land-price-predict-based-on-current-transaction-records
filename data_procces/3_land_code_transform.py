@@ -47,8 +47,6 @@ def get_new_land_code(df):
 
     for i in land_addr_dt_ls:
         try:
-            embed()
-            exit()
             browser = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
             
             browser.implicitly_wait(10) # 隱式等待
@@ -64,9 +62,21 @@ def get_new_land_code(df):
                 type_select.select_by_visible_text('舊地號查新地號')
                 # select.select_by_value('2')
                 
-                city_select = Select(browser.find_element('name', 'xcity'))
-                city_select.select_by_visible_text('桃園區') #桃園區(01)
+                # 選擇區
+                tar = browser.find_element('name', 'xcity')
+                city_options = tar.find_elements(By.TAG_NAME, 'option')
+                tar_city = [ls_txt.text for ls_txt in city_optins if ls_txt.text.find(i['county']) != -1]
+                embed()
+                exit()
                 
+                city_select = Select(tar)
+                city_select.select_by_visible_text()
+                
+                # 選擇段
+                city_select = Select(browser.find_element('name', 'xarea'))
+                city_select.select_by_visible_text()
+
+
                 time.sleep(0.5)
                 htmlstring = browser.page_source
                 soup_map = BeautifulSoup(htmlstring, 'lxml')
