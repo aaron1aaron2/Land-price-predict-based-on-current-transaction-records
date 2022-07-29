@@ -3,7 +3,7 @@ Author: 何彥南 (yen-nan ho)
 Github: https://github.com/aaron1aaron2
 Email: aaron1aaron2@gmail.com
 Create Date: 2022.07.25
-Last Update: 2022.07.27
+Last Update: 2022.07.29
 Describe: 獲取土地經緯度座標，來源 「地號 GeoJSON API」、「地籍圖資網路便民服務系統」 -> https://twland.ronny.tw/、https://easymap.land.moi.gov.tw/
 """
 
@@ -49,11 +49,15 @@ def get_coordinate(df, output):
     # 爬蟲進度恢復
     if os.path.exists(result_path):
         tmp = df['county'] + df['district'] + df['section'] + df['number']
+
         progress_df = pd.read_csv(result_path)
+        miss_df = pd.read_csv(miss_path)
 
-        df = df[~tmp.isin(progress_df['county'] + progress_df['district'] + progress_df['section'] + progress_df['number'])]
+        all_df = pd.concat([progress_df, miss_df])
 
-        del tmp; del progress_df
+        df = df[~tmp.isin(all_df['county'] + all_df['district'] + all_df['section'] + all_df['number'])]
+
+        del tmp; del progress_df; del miss_df
 
         print(f'Current progress: {df.shape[0]}\n')
 
@@ -64,7 +68,8 @@ def get_coordinate(df, output):
         r = requests.get(url)
 
         if r.status_code != 200:
-            print('error!')
+            print(f'error! \ {i}')
+            exit()
 
         try:
             respond_data = r.json()
