@@ -2,7 +2,7 @@
 Author: 何彥南 (yen-nan ho)
 Github: https://github.com/aaron1aaron2
 Email: aaron1aaron2@gmail.com
-Create Date: 2022.07.29
+Create Date: 2022.07.31
 Last Update: 2022.07.31
 Describe: 獲取土地經緯度座標，來源 「地籍圖資網路便民服務系統」。最新資料-> https://easymap.land.moi.gov.tw/
 """
@@ -32,7 +32,7 @@ def get_args():
     parser.add_argument('--file_path', type=str, default='data/procces/2_coordinate_data/crawler_miss.csv')
     parser.add_argument('--output_folder', type=str, default='data/procces/3_get_coordinate_newest')
 
-    parser.add_argument('--special_section_dict', type=str, default='data/procces/3_land_code_transform/special_section_dict.txt')
+    parser.add_argument('--special_section_dict', type=str, default='data/special_section_dict.txt')
 
     args = parser.parse_args()
 
@@ -61,89 +61,137 @@ def get_new_land_code(df, output, section_dt):
     land_addr_dt_ls = df.to_dict(orient="records")
 
     for i in tqdm(land_addr_dt_ls):
-        error_info = ''
-        try:
-            browser = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=get_chrome_options())
-            
-            browser.implicitly_wait(10) # 隱式等待
-
-            browser.get("https://www.land.tycg.gov.tw/chaspx/SQry4.aspx/14")
-
-            # 進入到互動 iframe
-            browser.switch_to.frame(browser.find_element(By.XPATH, '//*[@title="新舊地建號查詢"]'))
-
-            # 選擇搜尋服務類型
-            type_select = Select(browser.find_element('name', 'searchtype'))
-            type_select.select_by_visible_text('舊地號查新地號') # select.select_by_value('2')
-
-            # 選擇區
-            city_tar = browser.find_element('name', 'xcity')
-            city_options = city_tar.find_elements(By.TAG_NAME, 'option')
-            city = [ls_txt.text for ls_txt in city_options if ls_txt.text.find(i['district']) != -1] # 只取前兩字配對(市與區問題)
-
-            if len(city) == 0:
-                error_info = '找不到區'
-
-            city_select = Select(city_tar)
-            city_select.select_by_visible_text(city[0])
+        main_ct = 0
+        while main_ct < 5:
+            error_info = ''
+            i = {
+                'county': '桃園市', 'district': '大園區', 'section': '圳股頭段古亭小段', 'number': '316'
+            }
+            try:
+                browser = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=get_chrome_options())
                 
-            # 選擇段
-            section_tar = browser.find_element('name', 'xarea')
-            section_options = [ls_txt.text for ls_txt in section_tar.find_elements(By.TAG_NAME, 'option')]
+                browser.implicitly_wait(10) # 隱式等待
+                browser.get("https://easymap.land.moi.gov.tw/")
+                
+                # home to map
+                entrance_btn = browser.find_element(By.XPATH, "/html/body/div[1]/div[1]/div[1]/div[2]/a[1]")
+                entrance_btn.send_keys(Keys.ENTER)
+                time.sleep(0.1)
 
-            for pat, tar in section_dt.items():
-                section_options = [re.sub(pat, tar, ls_txt) for ls_txt in section_options]
+                # # 選擇搜尋服務類型 (使用網站預設)
+                # type_select = Select(browser.find_element('name', 'landType'))
+                # type_select.select_by_visible_text('以地號查詢')
 
-            section = [ls_txt for ls_txt in section_options if ls_txt.find(i['section']) != -1] # 只取前兩字配對(市與區問題)
+                # 選擇縣市 city
+                city_tar = browser.find_element('name', 'select_city')
+                city_options = city_tar.find_elements(By.TAG_NAME, 'option')
+                city = [ls_txt.text for ls_txt in city_options if ls_txt.text.find(i['county']) != -1]
 
-            if len(section) == 0:
-                error_info = '找不到段'
+                if len(city) == 0:
+                    error_info = '找不到縣市'
 
-            section_select = Select(section_tar)
-            section_select.select_by_value(re.search("\((\d+)\)", section[0])[1])
+                city_select = Select(city_tar)
+                city_select.select_by_visible_text(city[0])
 
-            # 輸入舊地號
-            landcode_tar = browser.find_element('name', 'xno')
-            landcode_tar.send_keys(i['number'])
+                # 選擇區 town | 重複 50 次嘗試，等待列表載入
+                town = []; ct = 0
+                while len(town) == 0:
+                    town_tar = browser.find_element('name', 'select_town')
+                    town_options = town_tar.find_elements(By.TAG_NAME, 'option')
+                    town = [ls_txt.text for ls_txt in town_options if ls_txt.text.find(i['district']) != -1] 
 
-            # 送出
-            summit_button = browser.find_element('id', 'btnSearch1')
-            summit_button.send_keys(Keys.ENTER)
+                    time.sleep(0.2)
 
-            # 儲存查詢資訊
-            result_table = browser.find_element('id', "GridView1")
-            result_text = result_table.text
+                    ct += 1
+                    if ct > 50:
+                        error_info = '找不到區'
+                        break
 
-            if result_text.find('新地段 新地號') == -1:
-                i.update({'error_log': result_text})
-                output_csv(i, miss_path)
-            else:
-                _, result = [i.split(' ') for i in result_text.split('\n')]
-                i.update({
-                    'district_match': city[0],
-                    'section_match': section[0],
-                    'number_match': result[1],
-                    'section_new': result[2],
-                    'number_new': result[3],
-                    'search_result': result_table.text.replace('\n', '|')
-                })
+                town_select = Select(town_tar)
+                town_select.select_by_visible_text(town[0])
 
-                output_csv(i, result_path)
+                # 選擇段 section | 重複 50 次嘗試，等待列表載入
+                section = []; ct = 0
+                while len(section) == 0:
+                    section_tar = browser.find_element('name', 'select_sect')
+                    section_options = [ls_txt.text for ls_txt in section_tar.find_elements(By.TAG_NAME, 'option')]
 
-        except NoSuchElementException:
-            i.update({'error_log': 'No Such Element'})
-            output_csv(i, miss_path)
+                    for pat, tar in section_dt.items():
+                        section_options = [re.sub(pat, tar, ls_txt) for ls_txt in section_options]
 
-        except Exception as e:
-            i.update({'error_log': f'{error_info} | {str(e)}'})
-            output_csv(i, miss_path)
+                    section = [ls_txt for ls_txt in section_options if ls_txt.find(i['section']) != -1] # 只取前兩字配對(市與區問題)
 
-        browser.close()
+                    time.sleep(0.2)
+
+                    ct += 1
+                    if ct > 50:
+                        error_info = '找不到段'
+                        break
+
+                section_select = Select(section_tar)
+                section_select.select_by_value('HE_' + re.search("\((\d+)\)", section[0])[1])
+
+                # 輸入舊地號
+                ct = 0
+                while ct < 3:
+                    time.sleep(0.2)
+                    landcode_tar = browser.find_element('name', 'landno')
+                    landcode_tar.send_keys(i['number'])
+                    if len(landcode_tar.get_attribute('value')) != 0:
+                        break
+                    ct += 1
+
+                # 送出
+                summit_button = browser.find_element('id', 'land_button')
+                summit_button.send_keys(Keys.ENTER)
+
+                from IPython import embed
+                embed()
+                exit()
+
+                # 儲存查詢資訊
+                result_table = browser.find_element('id', "GridView1")
+                result_text = result_table.text
+
+                if result_text.find('新地段 新地號') == -1:
+                    i.update({'error_log': result_text})
+                    output_csv(i, miss_path)
+                else:
+                    _, result = [i.split(' ') for i in result_text.split('\n')]
+                    i.update({
+                        'district_match': city[0],
+                        'section_match': section[0],
+                        'number_match': result[1],
+                        'section_new': result[2],
+                        'number_new': result[3],
+                        'search_result': result_table.text.replace('\n', '|')
+                    })
+
+                    output_csv(i, result_path)
+
+            except NoSuchElementException:
+                from IPython import embed
+                embed()
+                exit()
+                if main_ct >= 10:
+                    i.update({'error_log': 'No Such Element'})
+                    output_csv(i, miss_path)
+
+            except Exception as e:
+                print(str(e))
+                from IPython import embed
+                embed()
+                exit()
+                if main_ct >= 10:
+                    i.update({'error_log': f'{error_info} | {str(e)}'})
+                    output_csv(i, miss_path)
+
+            browser.close()
         # time.sleep(0.5)
         
 def get_chrome_options():
     chrome_options = Options()
-    chrome_options.add_argument("--headless") # 無視窗
+    # chrome_options.add_argument("--headless") # 無視窗
     chrome_options.add_argument("--incognito") # 無痕
     chrome_options.add_argument("--disable-software-rasterizer") # 無痕
     chrome_options.add_experimental_option('excludeSwitches', ['enable-logging']) # 忽略 log
