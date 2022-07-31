@@ -2,8 +2,8 @@
 Author: 何彥南 (yen-nan ho)
 Github: https://github.com/aaron1aaron2
 Email: aaron1aaron2@gmail.com
-Create Date: 2022.07.28
-Last Update: 2022.07.28
+Create Date: 2022.07.29
+Last Update: 2022.07.31
 Describe: 將未爬取到的舊地號轉新地號，來源「桃園地政資訊服務網」 -> https://www.land.tycg.gov.tw/chaspx/SQry4.aspx/14
 """
 
@@ -31,6 +31,8 @@ def get_args():
     parser.add_argument('--file_path', type=str, default='data/procces/2_coordinate_data/crawler_miss.csv')
     parser.add_argument('--output_folder', type=str, default='data/procces/3_land_code_transform')
 
+    parser.add_argument('--special_section_dict', type=str, default='data/procces/3_land_code_transform/special_section_dict.txt')
+
     args = parser.parse_args()
 
     return args
@@ -39,19 +41,29 @@ def get_new_land_code(df, output):
     result_path = os.path.join(output, 'crawler_result.csv')
     miss_path = os.path.join(output, 'crawler_miss.csv')
 
-    chrome_options = Options()
-    chrome_options.add_argument("--headless") # 無視窗
-    chrome_options.add_argument("--incognito") # 無痕
-    chrome_options.add_argument("--disable-software-rasterizer") # 無痕
-    chrome_options.add_experimental_option('excludeSwitches', ['enable-logging']) # 忽略 log
-    chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36")
+    print(f'Total tasks: {df.shape[0]}')
+    # 爬蟲進度恢復
+    if os.path.exists(result_path):
+        tmp = df['county'] + df['district'] + df['section'] + df['number']
+
+        progress_df = pd.read_csv(result_path)
+        miss_df = pd.read_csv(miss_path)
+        
+        # all_df = pd.concat([progress_df, miss_df])
+        all_df = progress_df
+
+        df = df[~tmp.isin(all_df['county'] + all_df['district'] + all_df['section'] + all_df['number'])]
+
+        del tmp; del progress_df; del miss_df
+
+        print(f'Current progress: {df.shape[0]}\n')
 
     land_addr_dt_ls = df.to_dict(orient="records")
 
     for i in tqdm(land_addr_dt_ls):
         error_info = ''
         try:
-            browser = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+            browser = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=get_chrome_options())
             
             browser.implicitly_wait(10) # 隱式等待
 
@@ -71,8 +83,6 @@ def get_new_land_code(df, output):
 
             if len(city) == 0:
                 error_info = '找不到區'
-            else:
-                i.update({'district_match': city[0]})
 
             city_select = Select(city_tar)
             city_select.select_by_visible_text(city[0])
@@ -84,8 +94,6 @@ def get_new_land_code(df, output):
 
             if len(area) == 0:
                 error_info = '找不到段'
-            else:
-                i.update({'section_match': area[0]})
 
             area_select = Select(area_tar)
             area_select.select_by_visible_text(area[0])
@@ -100,27 +108,47 @@ def get_new_land_code(df, output):
 
             # 儲存查詢資訊
             result_table = browser.find_element('id', "GridView1")
-            col_names, result = [i.split(' ') for i in result_table.text.split('\n')]
+            result_text = result_table.text
 
-            i.update({
-                'number_match': result[1],
-                'section_new': result[2],
-                'number_new': result[3],
-                'search_result': result_table.text.replace('\n', '|')
-            })
+            if result_text.find('新地段 新地號') == -1:
+                i.update({'error_log': result_text})
+                output_csv(i, miss_path)
+            else:
+                _, result = [i.split(' ') for i in result_text.split('\n')]
+                i.update({
+                    'district_match': city[0],
+                    'section_match': area[0],
+                    'number_match': result[1],
+                    'section_new': result[2],
+                    'number_new': result[3],
+                    'search_result': result_table.text.replace('\n', '|')
+                })
 
-            output_csv(i, result_path)
+                output_csv(i, result_path)
 
         except NoSuchElementException:
             i.update({'error_log': 'No Such Element'})
             output_csv(i, miss_path)
 
         except Exception as e:
+            from IPython import embed
+            embed()
+            exit()
             i.update({'error_log': f'{error_info} | {str(e)}'})
             output_csv(i, miss_path)
 
         browser.close()
-        time.sleep(0.5)
+        # time.sleep(0.5)
+        
+def get_chrome_options():
+    chrome_options = Options()
+    chrome_options.add_argument("--headless") # 無視窗
+    chrome_options.add_argument("--incognito") # 無痕
+    chrome_options.add_argument("--disable-software-rasterizer") # 無痕
+    chrome_options.add_experimental_option('excludeSwitches', ['enable-logging']) # 忽略 log
+    chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36")
+
+    return chrome_options
 
 def output_csv(data, path):
     pd.DataFrame([data]).to_csv(path, mode='a', index=False, header=not os.path.exists(path))
