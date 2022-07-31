@@ -7,6 +7,7 @@ Last Update: 2022.07.31
 Describe: 將未爬取到的舊地號轉新地號，來源「桃園地政資訊服務網」 -> https://www.land.tycg.gov.tw/chaspx/SQry4.aspx/14
 """
 
+import re
 import os
 import json
 import time
@@ -37,7 +38,7 @@ def get_args():
 
     return args
 
-def get_new_land_code(df, output):
+def get_new_land_code(df, output, section_dt):
     result_path = os.path.join(output, 'crawler_result.csv')
     miss_path = os.path.join(output, 'crawler_miss.csv')
 
@@ -49,8 +50,7 @@ def get_new_land_code(df, output):
         progress_df = pd.read_csv(result_path)
         miss_df = pd.read_csv(miss_path)
         
-        # all_df = pd.concat([progress_df, miss_df])
-        all_df = progress_df
+        all_df = pd.concat([progress_df, miss_df])
 
         df = df[~tmp.isin(all_df['county'] + all_df['district'] + all_df['section'] + all_df['number'])]
 
@@ -88,15 +88,19 @@ def get_new_land_code(df, output):
             city_select.select_by_visible_text(city[0])
                 
             # 選擇段
-            area_tar = browser.find_element('name', 'xarea')
-            area_options = area_tar.find_elements(By.TAG_NAME, 'option')
-            area = [ls_txt.text for ls_txt in area_options if ls_txt.text.find(i['section']) != -1] # 只取前兩字配對(市與區問題)
+            section_tar = browser.find_element('name', 'xarea')
+            section_options = [ls_txt.text for ls_txt in section_tar.find_elements(By.TAG_NAME, 'option')]
 
-            if len(area) == 0:
+            for pat, tar in section_dt.items():
+                section_options = [re.sub(pat, tar, ls_txt) for ls_txt in section_options]
+
+            section = [ls_txt for ls_txt in section_options if ls_txt.find(i['section']) != -1] # 只取前兩字配對(市與區問題)
+
+            if len(section) == 0:
                 error_info = '找不到段'
 
-            area_select = Select(area_tar)
-            area_select.select_by_visible_text(area[0])
+            section_select = Select(section_tar)
+            section_select.select_by_value(re.search("\((\d+)\)", section[0])[1])
 
             # 輸入舊地號
             landcode_tar = browser.find_element('name', 'xno')
@@ -117,7 +121,7 @@ def get_new_land_code(df, output):
                 _, result = [i.split(' ') for i in result_text.split('\n')]
                 i.update({
                     'district_match': city[0],
-                    'section_match': area[0],
+                    'section_match': section[0],
                     'number_match': result[1],
                     'section_new': result[2],
                     'number_new': result[3],
@@ -127,6 +131,9 @@ def get_new_land_code(df, output):
                 output_csv(i, result_path)
 
         except NoSuchElementException:
+            from IPython import embed
+            embed()
+            exit()
             i.update({'error_log': 'No Such Element'})
             output_csv(i, miss_path)
 
@@ -157,10 +164,20 @@ def saveJson(data, path, mode):
     if mode == 'nor_write':
         with open(path, 'w', encoding='utf-8') as outfile:  
             json.dump(data, outfile, indent=2, ensure_ascii=False)
+
     if mode == 'append_row':
         with open(path, 'a', encoding='utf-8') as outfile:  
             json.dump(data, outfile, ensure_ascii=False)
             outfile.write('\n')
+
+def read_dt(path):
+    with open(path, encoding='utf-8') as f:
+        lines = f.readlines()
+
+    lines = [i.split(' ') for i in lines]
+    dt = {i[0]:i[1].strip() for i in lines}
+
+    return dt
 
 def main():
     # 參數處理
@@ -176,9 +193,12 @@ def main():
     # 讀取資料
     assert os.path.exists(args.file_path), f"Input file could not be found at {args.file_path}"
     df = pd.read_csv(args.file_path, low_memory=False).drop_duplicates()
+    
+    assert os.path.exists(args.special_section_dict), f"section dict could not be found at {args.special_section_dict}"
+    section_dt = read_dt(args.special_section_dict)
 
     # 爬取座標資料
-    coordinate_df = get_new_land_code(df, args.output_folder)
+    coordinate_df = get_new_land_code(df, args.output_folder, section_dt)
 
 if __name__ == '__main__':
     main()
