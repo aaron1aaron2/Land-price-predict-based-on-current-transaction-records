@@ -84,15 +84,18 @@ def get_coordinate(df, output):
 
             if len(coordinate_dt)==2:
                 i.update(coordinate_dt)
-                pd.DataFrame([i]).to_csv(result_path, mode='a', index=False, header=not os.path.exists(result_path))
+                output_csv(i, result_path)
             else:
-                pd.DataFrame([i]).to_csv(miss_path, mode='a', index=False, header=not os.path.exists(miss_path))
+                output_csv(i, miss_path)
 
         except:
-            pd.DataFrame([i]).to_csv(miss_path, mode='a', index=False, header=not os.path.exists(miss_path))
+            output_csv(i, miss_path)
 
         time.sleep(0.5)
 
+def output_csv(data, path):
+    pd.DataFrame([data]).to_csv(path, mode='a', index=False, header=not os.path.exists(path))
+    
 def saveJson(data, path, mode):
     if mode == 'nor_write':
         with open(path, 'w', encoding='utf-8') as outfile:  
