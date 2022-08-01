@@ -5,6 +5,16 @@ Email: aaron1aaron2@gmail.com
 Create Date: 2022.07.31
 Last Update: 2022.07.31
 Describe: 獲取土地經緯度座標，來源 「地籍圖資網路便民服務系統」。最新資料-> https://easymap.land.moi.gov.tw/
+Issue: 
+    1. [已解決] 擷取過程中回傳的地圖中心(經緯)
+        a. 紀錄 network traffic: https://stackoverflow.com/questions/52633697/selenium-python-how-to-capture-network-traffics-response
+        b. cookies 資訊: https://stackoverflow.com/questions/12737740/python-requests-and-persistent-sessions
+        c. 使用 seleniumwire: https://www.linkedin.com/pulse/how-capture-http-requests-using-selenium-ash-sheng/
+            - [未解決] 使用 seleniumwire 的 https 憑證問題
+                a. 手動加入憑證: https://github.com/wkeeling/selenium-wire/issues/120
+            - [未解決] 使用 seleniumwire 的載入速度問題 
+        d. (current use) 直接用在 console 執行 move_lonlat 回傳當前經緯
+            https://stackoverflow.com/questions/5585343/getting-the-return-value-of-javascript-code-in-selenium
 """
 
 import re
@@ -13,10 +23,13 @@ import json
 import time
 import argparse
 import pandas as pd
+import requests
 
 from tqdm import tqdm
 
 from selenium import webdriver
+# from seleniumwire import webdriver
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
@@ -64,9 +77,6 @@ def get_new_land_code(df, output, section_dt):
         main_ct = 0
         while main_ct < 5:
             error_info = ''
-            i = {
-                'county': '桃園市', 'district': '大園區', 'section': '圳股頭段古亭小段', 'number': '316'
-            }
             try:
                 browser = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=get_chrome_options())
                 
@@ -92,6 +102,7 @@ def get_new_land_code(df, output, section_dt):
 
                 city_select = Select(city_tar)
                 city_select.select_by_visible_text(city[0])
+                time.sleep(0.2)
 
                 # 選擇區 town | 重複 50 次嘗試，等待列表載入
                 town = []; ct = 0
@@ -109,6 +120,7 @@ def get_new_land_code(df, output, section_dt):
 
                 town_select = Select(town_tar)
                 town_select.select_by_visible_text(town[0])
+                time.sleep(0.2)
 
                 # 選擇段 section | 重複 50 次嘗試，等待列表載入
                 section = []; ct = 0
@@ -119,21 +131,30 @@ def get_new_land_code(df, output, section_dt):
                     for pat, tar in section_dt.items():
                         section_options = [re.sub(pat, tar, ls_txt) for ls_txt in section_options]
 
-                    section = [ls_txt for ls_txt in section_options if ls_txt.find(i['section']) != -1] # 只取前兩字配對(市與區問題)
+                    section = [ls_txt for ls_txt in section_options if ls_txt.find(i['section']) != -1] 
 
                     time.sleep(0.2)
+                    
+                    # 當已載入段但是查詢不到，直接視作 miss，跳出 retry
+                    if (len(section_options) > 2) & (len(section) == 0):
+                        error_info = '找不到段'
+                        main_ct == 5 
+                        break
 
                     ct += 1
                     if ct > 50:
                         error_info = '找不到段'
                         break
+                
+                section_code = re.search("\((\d+)\)", section[0])[1]
 
                 section_select = Select(section_tar)
-                section_select.select_by_value('HE_' + re.search("\((\d+)\)", section[0])[1])
+                section_select.select_by_value('HE_' + section_code)
+                time.sleep(0.2)
 
                 # 輸入舊地號
                 ct = 0
-                while ct < 3:
+                while ct < 10:
                     time.sleep(0.2)
                     landcode_tar = browser.find_element('name', 'landno')
                     landcode_tar.send_keys(i['number'])
@@ -145,59 +166,78 @@ def get_new_land_code(df, output, section_dt):
                 summit_button = browser.find_element('id', 'land_button')
                 summit_button.send_keys(Keys.ENTER)
 
-                from IPython import embed
-                embed()
-                exit()
-
-                # 儲存查詢資訊
-                result_table = browser.find_element('id', "GridView1")
+                # 查詢結果 table
+                result_table = browser.find_element('id', "dlg_search_result")
                 result_text = result_table.text
 
+                # 直接取當前地圖中心經緯度
+                browser.find_element('id', 'OpenLayers.Layer.Vector_42_vroot').click() # 點一下地圖
+                coor_dt = browser.execute_script('return move_lonlat')
+
+                # # 使用當前 session request，獲取中心點經緯度 (回應太慢，不穩定)
+                # s = get_request_session(browser.get_cookies())
+                # token_rp = s.post('https://easymap.land.moi.gov.tw/pages/setToken.jsp')
+                # token = re.search('name="token" value="(.+)" />', token_rp.text)[1]
+
+                # s = get_request_session(browser.get_cookies())
+                # info = {
+                #     'office': 'HE',
+                #     'sectNo': section_code,
+                #     'landNo': i['number'],
+                #     'qryResult': '',
+                #     'struts.token.name': 'token',
+                #     'token': token
+                # }
+                # coordinate_rp = requests.post('https://easymap.land.moi.gov.tw/Map_json_getMapCenter', info)
+
+                # 儲存查詢資訊
                 if result_text.find('新地段 新地號') == -1:
                     i.update({'error_log': result_text})
                     output_csv(i, miss_path)
                 else:
-                    _, result = [i.split(' ') for i in result_text.split('\n')]
-                    i.update({
-                        'district_match': city[0],
-                        'section_match': section[0],
-                        'number_match': result[1],
-                        'section_new': result[2],
-                        'number_new': result[3],
-                        'search_result': result_table.text.replace('\n', '|')
-                    })
+                    result = [i.split(' ', 1) for i in result_text.split('\n')]
+                    result = [i for i in result if len(i)==2]
+                    result = {i:v for i,v in result}
+                    result['lat'] = coor_dt["lat"] if 'lat' in coor_dt else ''
+                    result['long'] = coor_dt["lon"] if 'lon' in coor_dt else ''
+
+
+                    i.update(result)
 
                     output_csv(i, result_path)
 
             except NoSuchElementException:
-                from IPython import embed
-                embed()
-                exit()
-                if main_ct >= 10:
+                if main_ct >= 4:
                     i.update({'error_log': 'No Such Element'})
                     output_csv(i, miss_path)
 
             except Exception as e:
-                print(str(e))
-                from IPython import embed
-                embed()
-                exit()
-                if main_ct >= 10:
+                if main_ct >= 4:
                     i.update({'error_log': f'{error_info} | {str(e)}'})
                     output_csv(i, miss_path)
 
+            main_ct += 1
             browser.close()
-        # time.sleep(0.5)
-        
+
+def get_request_session(cookies):
+    s = requests.Session()
+    for cookie in cookies:
+        s.cookies.set(cookie['name'], cookie['value'], path=cookie['path'])
+    return s
+
 def get_chrome_options():
     chrome_options = Options()
     # chrome_options.add_argument("--headless") # 無視窗
     chrome_options.add_argument("--incognito") # 無痕
     chrome_options.add_argument("--disable-software-rasterizer") # 無痕
+    chrome_options.add_argument('--ignore-certificate-errors') # 無視憑證
     chrome_options.add_experimental_option('excludeSwitches', ['enable-logging']) # 忽略 log
     chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36")
-
     return chrome_options
+
+def process_browser_log_entry(entry):
+    response = json.loads(entry['message'])['message']
+    return response
 
 def output_csv(data, path):
     pd.DataFrame([data]).to_csv(path, mode='a', index=False, header=not os.path.exists(path))
