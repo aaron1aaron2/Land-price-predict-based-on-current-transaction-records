@@ -25,7 +25,7 @@ def get_args():
     parser.add_argument('--landid_col', type=str, default='土地位置', help='土地位置與地號欄位名稱')
 
     parser.add_argument('--extract_pattern', type=str, 
-                        default='(?P<county>\w+市)(?P<district>\w+區)(?P<section>\w+段)(?P<number>.+)地號', 
+                        default='(?P<county>\w+市)(?P<district>\w{2}區)(?P<section>\w+段)(?P<number>.+)地號', 
                         help='土地資訊切分 regex pattern。須包含 county、district、section、number 四個資訊，可參考 default format。')
 
     args = parser.parse_args()
