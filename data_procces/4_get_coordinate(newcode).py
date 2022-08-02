@@ -19,8 +19,8 @@ from tqdm import tqdm
 def get_args():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--file_path', type=str, default='data/procces/1_sort_data/transaction_land.csv')
-    parser.add_argument('--output_folder', type=str, default='data/procces/2_coordinate_data')
+    parser.add_argument('--file_path', type=str, default='data/procces/3_land_code_transform/crawler_result.csv')
+    parser.add_argument('--output_folder', type=str, default='data/procces/4_get_coordinate(newcode)')
 
     parser.add_argument('--county_col', type=str, default='county')
     parser.add_argument('--district_col', type=str, default='district')
