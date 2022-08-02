@@ -5,6 +5,7 @@ Email: aaron1aaron2@gmail.com
 Create Date: 2022.07.29
 Last Update: 2022.08.02
 Describe: 將未爬取到的舊地號轉新地號，來源「桃園地政資訊服務網」 -> https://www.land.tycg.gov.tw/chaspx/SQry4.aspx/14
+-----------------------------------
 Issue: 
     1. [已解決] invalid session id -> 當 selenium session 未正確關閉產生的
         a. quit() 與 close(): https://stackoverflow.com/questions/56483403/selenium-common-exceptions-webdriverexception-message-invalid-session-id-using
