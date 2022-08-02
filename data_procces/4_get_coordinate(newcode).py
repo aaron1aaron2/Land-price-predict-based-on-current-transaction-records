@@ -4,7 +4,7 @@ Github: https://github.com/aaron1aaron2
 Email: aaron1aaron2@gmail.com
 Create Date: 2022.08.02
 Last Update: 2022.08.02
-Describe: 爬蟲部分大致上和 2_get_coordinate.py 功能依樣，這部分是爬取上步驟轉完的新地號
+Describe: 爬蟲部分大致上和 2_get_coordinate.py 功能一樣，這部分是爬取主辦單位給的的 20 筆土地
 """
 
 import os
