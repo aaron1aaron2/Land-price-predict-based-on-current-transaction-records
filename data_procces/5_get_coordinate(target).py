@@ -19,13 +19,13 @@ from tqdm import tqdm
 def get_args():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--file_path', type=str, default='data/procces/1_sort_data/transaction_land.csv')
-    parser.add_argument('--output_folder', type=str, default='data/procces/2_coordinate_data')
+    parser.add_argument('--file_path', type=str, default='data/AI競賽地籍資料.csv')
+    parser.add_argument('--output_folder', type=str, default='data/procces/5_get_coordinate(target)')
 
-    parser.add_argument('--county_col', type=str, default='county')
-    parser.add_argument('--district_col', type=str, default='district')
-    parser.add_argument('--section_col', type=str, default='section_new')
-    parser.add_argument('--number_col', type=str, default='number_new')
+    parser.add_argument('--county_col', type=str, default='縣市')
+    parser.add_argument('--district_col', type=str, default='鄉鎮市區')
+    parser.add_argument('--section_col', type=str, default='地段')
+    parser.add_argument('--number_col', type=str, default='地號')
 
     args = parser.parse_args()
 
