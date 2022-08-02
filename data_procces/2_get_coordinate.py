@@ -32,7 +32,7 @@ def get_args():
 
     return args
 
-def extract_pattern(df, pattern, output):
+def extract_pattern(df:pd.DataFrame, pattern:str, output:str) -> pd.DataFrame:
     extract_df = df.str.extract(pattern)
 
     # 輸出檢查用資料
@@ -41,7 +41,7 @@ def extract_pattern(df, pattern, output):
 
     return extract_df
 
-def get_coordinate(df, output):
+def get_coordinate(df:pd.DataFrame, output:str) -> None:
     result_path = os.path.join(output, 'crawler_result.csv')
     miss_path = os.path.join(output, 'crawler_miss.csv')
 
@@ -93,10 +93,10 @@ def get_coordinate(df, output):
 
         time.sleep(0.5)
 
-def output_csv(data, path):
+def output_csv(data:dict, path:str) -> None:
     pd.DataFrame([data]).to_csv(path, mode='a', index=False, header=not os.path.exists(path))
     
-def saveJson(data, path, mode):
+def saveJson(data:dict, path:str, mode:str) -> None:
     if mode == 'nor_write':
         with open(path, 'w', encoding='utf-8') as outfile:  
             json.dump(data, outfile, indent=2, ensure_ascii=False)
@@ -127,7 +127,7 @@ def main():
     extract_df = extract_pattern(land_addr_df, args.extract_pattern, args.output_folder)
 
     # 爬取座標資料
-    coordinate_df = get_coordinate(extract_df, args.output_folder)
+    get_coordinate(extract_df, args.output_folder)
 
 if __name__ == '__main__':
     main()
