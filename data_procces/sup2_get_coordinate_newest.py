@@ -7,6 +7,7 @@ Last Update: 2022.07.31
 Describe: 獲取土地經緯度座標，來源 「地籍圖資網路便民服務系統」。最新資料-> https://easymap.land.moi.gov.tw/
             本 script 為 2_get_coordinate.py 的替代方案，他有最新資料，但是據觀察大部分資料 2_get_coordinate.py 就可以爬取到。
             所以本方案先保留。
+-----------------------------------
 Issue: 
     1. [已解決] 擷取過程中回傳的地圖中心(經緯)
         a. 紀錄 network traffic: https://stackoverflow.com/questions/52633697/selenium-python-how-to-capture-network-traffics-response
