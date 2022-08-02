@@ -41,7 +41,7 @@ def get_args():
 
     return args
 
-def get_new_land_code(df, output, section_dt):
+def get_new_land_code(df:pd.DataFrame, output:str, section_dt:dict) -> None:
     result_path = os.path.join(output, 'crawler_result.csv')
     miss_path = os.path.join(output, 'crawler_miss.csv')
 
@@ -157,10 +157,10 @@ def get_chrome_options():
 
     return chrome_options
 
-def output_csv(data, path):
+def output_csv(data:dict, path:str) -> None:
     pd.DataFrame([data]).to_csv(path, mode='a', index=False, header=not os.path.exists(path))
 
-def saveJson(data, path, mode):
+def saveJson(data:dict, path:str, mode:str) -> None:
     if mode == 'nor_write':
         with open(path, 'w', encoding='utf-8') as outfile:  
             json.dump(data, outfile, indent=2, ensure_ascii=False)
@@ -170,7 +170,7 @@ def saveJson(data, path, mode):
             json.dump(data, outfile, ensure_ascii=False)
             outfile.write('\n')
 
-def read_dt(path):
+def read_dt(path:str) -> dict:
     with open(path, encoding='utf-8') as f:
         lines = f.readlines()
 
