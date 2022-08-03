@@ -2,3 +2,4 @@ tqdm
 pandas
 selenium
 webdriver-manager
+folium # 主要流程非必要
