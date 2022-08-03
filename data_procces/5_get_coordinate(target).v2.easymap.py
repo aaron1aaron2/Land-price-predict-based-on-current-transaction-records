@@ -18,6 +18,11 @@ Issue:
             - [未解決] 使用 seleniumwire 的載入速度問題 
         d. (current use) 直接用在 console 執行 move_lonlat 回傳當前經緯
             https://stackoverflow.com/questions/5585343/getting-the-return-value-of-javascript-code-in-selenium
+-----------------------------------
+TODO
+    1. 短時間內太多查詢會被擋，需加入自動換 IP 功能。(使用 tor)
+        a. https://techmonger.github.io/68/tor-new-ip-python/
+        b. https://gist.github.com/tarcisio-marinho/4e332b3f44f8faf87dc2efd824a46690
 """
 
 import re
