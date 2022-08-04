@@ -20,7 +20,7 @@ def get_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--file_path', type=str, default='data/procces/1_sort_data/transaction_land.csv')
-    parser.add_argument('--output_folder', type=str, default='data/procces/2_coordinate_data')
+    parser.add_argument('--output_folder', type=str, default='data/procces/2_get_coordinate')
 
     parser.add_argument('--landid_col', type=str, default='土地位置', help='土地位置與地號欄位名稱')
 
