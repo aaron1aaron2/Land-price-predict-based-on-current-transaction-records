@@ -29,13 +29,23 @@ replace_dt = {
 
 for i,v in replace_dt.items():
     land_transaction_df['土地位置建物門牌'] = land_transaction_df['土地位置建物門牌'].str.replace(i, v)
-    
+
 land_transaction_df['土地位置'] = '桃園市' + land_transaction_df['鄉鎮市區'] + land_transaction_df['土地位置建物門牌']
 
 # 移除空值
 land_transaction_df = land_transaction_df[~land_transaction_df['土地位置'].isna()]
 land_transaction_df = land_transaction_df[~land_transaction_df['單價元平方公尺'].isna()]
 
+# 重複值
+land_transaction_df.drop_duplicates(subset=["鄉鎮市區", "土地位置建物門牌", "交易年月日"], inplace=True)
+
+# 日期問題(6 位的都有問題)
+land_transaction_df = land_transaction_df[land_transaction_df["交易年月日"].astype("str").str.len() == 7]
+
+# 抽取日期
+land_transaction_df = land_transaction_df.join(
+    land_transaction_df['交易年月日'].astype("str").str.extract('(?P<year>\d{3})(?P<month>\d{2})(?P<day>\d{2})')
+    )
 
 land_transaction_df.to_csv(os.path.join(output, 'transaction_land.csv'), index=False)
 
