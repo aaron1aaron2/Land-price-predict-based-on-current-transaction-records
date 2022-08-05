@@ -13,8 +13,8 @@ import pandas as pd
 output_folder = 'data/procces/6_sort_crawler_data'
 os.makedirs(output_folder, exist_ok=True)
 
-cols = ['year_s', '鄉鎮市區', '土地位置建物門牌', '土地移轉總面積平方公尺', '都市土地使用分區', 
-        '非都市土地使用分區', '非都市土地使用編定', '交易年月日', '交易筆棟數', '總價元', '單價元平方公尺']
+cols = ['year', 'month', 'day', '鄉鎮市區', '土地位置建物門牌', '土地移轉總面積平方公尺', '都市土地使用分區', 
+        '非都市土地使用分區', '非都市土地使用編定', '交易筆棟數', '總價元', '單價元平方公尺']
 transaction_df = pd.read_csv('data/procces/1_sort_data/transaction_land.csv', usecols=cols,low_memory=False)
 
 coordinate_result_df = pd.read_csv('data/procces/2_get_coordinate/crawler_result.csv', low_memory=False)
@@ -26,7 +26,6 @@ coordinate_new_result_df = pd.read_csv('data/procces/4_get_coordinate(newcode)/c
 
 coordinate_all_df = pd.concat([coordinate_result_df, coordinate_miss_df])
 coordinate_all_df.rename(columns={'xcenter': 'long', 'ycenter': 'lat'}, inplace=True)
-coordinate_all_df.to_csv('coordinate_all.csv', index=False)
 del coordinate_miss_df; del coordinate_result_df
 
 coordinate_all_df = coordinate_all_df.merge(land_code_tran_df[['county', 'district', 'section', 'number', 'section_new', 'number_new']], how='left')
