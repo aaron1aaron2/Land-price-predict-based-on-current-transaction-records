@@ -1,3 +1,11 @@
+"""
+Author: 何彥南 (yen-nan ho)
+Github: https://github.com/aaron1aaron2
+Email: aaron1aaron2@gmail.com
+Create Date: 2022.08.03
+Last Update: 2022.08.03
+Describe: 主辦單位的 54 個土地，作為我們的目標。透過地圖觀察在地理上的位置。
+"""
 import os
 import pandas as pd
 
