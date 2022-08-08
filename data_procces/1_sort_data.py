@@ -46,6 +46,7 @@ land_transaction_df = land_transaction_df[land_transaction_df["交易年月日"]
 land_transaction_df = land_transaction_df.join(
     land_transaction_df['交易年月日'].astype("str").str.extract('(?P<year>\d{3})(?P<month>\d{2})(?P<day>\d{2})')
     )
+land_transaction_df = land_transaction_df[~((land_transaction_df.day == '00') | (land_transaction_df.month=='00'))]
 
 land_transaction_df.to_csv(os.path.join(output, 'transaction_land.csv'), index=False)
 
