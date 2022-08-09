@@ -12,7 +12,7 @@ import pandas as pd
 import folium
 # from folium.features import DivIcon
 
-output_folder = 'data/procces/fig'
+output_folder = 'data/procces/supplementary'
 os.makedirs(output_folder, exist_ok=True)
 
 df = pd.read_csv('data/procces/5_get_coordinate(target)/crawler_result_mod.csv')
