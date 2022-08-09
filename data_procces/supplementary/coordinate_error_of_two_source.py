@@ -12,7 +12,7 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 
-output_folder = 'data/procces/fig'
+output_folder = 'data/procces/supplementary'
 os.makedirs(output_folder, exist_ok=True)
 
 df_api = pd.read_csv('data/procces/old_version/5_get_coordinate(target).v1/crawler_result.csv')
