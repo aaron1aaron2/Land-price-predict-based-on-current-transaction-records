@@ -3,3 +3,4 @@ pandas
 selenium
 webdriver-manager
 folium # 主要流程非必要
+geopy==2.2.0
