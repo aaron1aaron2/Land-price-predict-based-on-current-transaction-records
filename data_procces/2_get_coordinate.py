@@ -1,3 +1,4 @@
+# encoding: utf-8
 """
 Author: 何彥南 (yen-nan ho)
 Github: https://github.com/aaron1aaron2
