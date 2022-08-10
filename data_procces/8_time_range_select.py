@@ -1,3 +1,4 @@
+# encoding: utf-8
 """
 Author: 何彥南 (yen-nan ho)
 Github: https://github.com/aaron1aaron2
@@ -35,4 +36,8 @@ month_ct.plot(figsize=(10, 6))
 
 plt.savefig(os.path.join(output_folder, '7_target_landuse_plot(month).png'))
 
-
+# 每個月在不同
+plt.clf()
+df.groupby(['year', 'month']).size().unstack(fill_value=0)
+sns.lineplot(x='year', y='Sales', data=, hue='使用分區', palette='Set1')
+plt.show()
