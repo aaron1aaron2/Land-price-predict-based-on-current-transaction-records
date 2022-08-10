@@ -1,3 +1,4 @@
+# encoding: utf-8
 """
 Author: 何彥南 (yen-nan ho)
 Github: https://github.com/aaron1aaron2
@@ -12,6 +13,8 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 
+from geopy.distance import geodesic
+
 output_folder = 'data/procces/supplementary'
 os.makedirs(output_folder, exist_ok=True)
 
@@ -25,12 +28,15 @@ df_easymap.drop('result_text', axis=1, inplace=True)
 df = df_api.merge(df_easymap[['地段', '地號', 'lat', 'long']], on=['地段', '地號'], how='inner')
 
 
-df['lat_error'] = df['lat'] - df['lat(api)']
-df['long_error'] = df['long'] - df['long(api)']
+# df['lat_error'] = df['lat'] - df['lat(api)']
+# df['long_error'] = df['long'] - df['long(api)']
+# df[['lat_error', 'long_error']].sort_values('long_error').reset_index(drop=True).plot()
 
-# df.index = df['鄉鎮市區'] + df['地段'] + ['地號']
+# plt.savefig(os.path.join(output_folder, 'coordinate_error_of_easymap_and_API.png'))
 
+# 距離上的偏誤
+df['距離誤差'] = df.apply(lambda x: geodesic([x['lat(api)'], x['long(api)']],[x['lat'], x['long']]).meters,axis=1)
+# df_AB['linear_distance'] = df_AB.apply(lambda x:geodesic(x['start_coordinate'].split(','),x['end_coordinate'].split(',')).kilometers,axis=1)
 
-df[['lat_error', 'long_error']].sort_values('long_error').reset_index(drop=True).plot()
-
+df.sort_values('距離誤差').reset_index(drop=True)['距離誤差'].plot()
 plt.savefig(os.path.join(output_folder, 'coordinate_error_of_easymap_and_API.png'))
