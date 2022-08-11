@@ -14,6 +14,12 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import seaborn as sns
 
+# 基本設定
+plt.rcParams['font.sans-serif'] = ['Microsoft JhengHei']
+
+output_folder = 'data/procces/8_time_range_select'
+os.makedirs(output_folder, exist_ok=True)
+
 df = pd.read_csv('data/procces/6_sort_crawler_data/transaction_coordinate_use.csv', dtype=str)
 
 df.dropna(subset=['都市土地使用分區', '非都市土地使用分區', '非都市土地使用編定'], how='all', inplace=True)
