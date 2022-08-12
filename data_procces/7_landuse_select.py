@@ -50,4 +50,4 @@ df.to_csv(os.path.join(output_folder, 'transaction_all.csv'), index=False)
 plt.clf()
 df['使用分區'].value_counts().plot(kind='pie', rot=0, cmap=plt.get_cmap('Pastel1'), 
                 autopct='%1.0f%%', pctdistance=0.8, labeldistance=1.1)
-plt.savefig(os.path.join(output_folder, 'target_landuse_pie.png'))
+plt.savefig(os.path.join(output_folder, 'transaction_landuse_pie.png'))
