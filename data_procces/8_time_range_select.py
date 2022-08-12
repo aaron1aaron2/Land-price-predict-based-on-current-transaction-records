@@ -42,7 +42,7 @@ plt.clf()
 # plt.gca().xaxis.set_major_locator(mdates.MonthLocator(interval=12)) # show every 12th tick on x axes
 # plt.xticks(rotation=40, fontweight='light', fontsize='x-small')
 sns.set(rc={'figure.figsize':(13, 8)})
-sns.lineplot(x='year-month', y='count', hue='year', data=month_ct.reset_index(), palette='Set3')
+sns.lineplot(x='year-month', y='count', hue='year', data=month_ct.reset_index(), palette='Set2')
 
 plt.savefig(os.path.join(output_folder, 'transaction_plot(year-month).png'))
 
@@ -57,11 +57,11 @@ gb_ct.rename(columns={'day': 'count'}, inplace=True)
 
 plt.clf()
 plt.rcParams['font.sans-serif'] = ['Microsoft JhengHei']
-sns.lineplot(x='year-month', y='count', hue='使用分區', data=gb_ct, palette='Set3')
+sns.lineplot(x='year-month', y='count', hue='使用分區', data=gb_ct, palette='Set2')
 plt.savefig(os.path.join(output_folder, 'transaction_landuse_plot(year-month).png'))
 
 
 plt.clf()
 plt.rcParams['font.sans-serif'] = ['Microsoft JhengHei']
-sns.lineplot(x='year-month', y='count', hue='使用分區', data=gb_ct[gb_ct['使用分區'].isin(['住', '商'])], palette='Set3')
+sns.lineplot(x='year-month', y='count', hue='使用分區', data=gb_ct[gb_ct['使用分區'].isin(['住', '商'])], palette='Set2')
 plt.savefig(os.path.join(output_folder, 'transaction_landuse_plot(year-month)_house-business.png'))
