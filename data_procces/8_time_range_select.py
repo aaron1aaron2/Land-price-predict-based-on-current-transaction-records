@@ -71,5 +71,10 @@ plt.tight_layout()
 plt.savefig(os.path.join(output_folder, 'transaction_landuse_plot(year-month)_house-business.png'))
 
 # 資料篩選 ===================================\
+year_month = pd.DatetimeIndex(month_ct[month_ct['count']<200]['year-month'])
+remove_ls = (year_month.year.astype(str) + '-' + year_month.month.astype(str)).to_list()
 
-df
+tmp = df['year'].astype(str) + '-' + df['month'].astype(str)
+df = df[~tmp.isin(remove_ls)]
+
+df.to_csv(os.path.join(output_folder, 'transaction_all.csv'), index=False)
