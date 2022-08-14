@@ -1,18 +1,11 @@
 # Land-price-predict-based-on-transaction-records
 
 ## TO-DO
-<ul>
-  <li>[x] item1</li>
-  <li>[ ] item2</li>
-</ul>
-
-- 
-- [ ] 爬取經緯度
+- [x] 資料蒐集 & 清整
+- [x] 爬取經緯度
 - [ ] 整理訓練資料
 - [ ] 模型修改
 - [ ] 跑實驗
-
-:heavy_check_mark: 
 
 ## Citation
 
