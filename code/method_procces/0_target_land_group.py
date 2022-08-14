@@ -8,7 +8,6 @@ Last Update: 2022.08.14
 Describe: 許多目標土地位置上很相近，所以在這步驟會使用 DBSCAN 聚類方式對土地點分群。讓位置相近的土地歸到成同一個目標點。
 """
 import os
-from unittest import result
 import folium
 import itertools
 import pandas as pd
