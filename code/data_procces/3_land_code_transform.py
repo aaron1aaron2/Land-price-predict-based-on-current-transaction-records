@@ -33,8 +33,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 def get_args():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--file_path', type=str, default='data/procces/2_get_coordinate/crawler_miss.csv')
-    parser.add_argument('--output_folder', type=str, default='data/procces/3_land_code_transform')
+    parser.add_argument('--file_path', type=str, default='data/data_procces/2_get_coordinate/crawler_miss.csv')
+    parser.add_argument('--output_folder', type=str, default='data/data_procces/3_land_code_transform')
 
     parser.add_argument('--special_section_dict', type=str, default='data/special_section_dict.txt')
 

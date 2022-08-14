@@ -15,18 +15,18 @@ import matplotlib.pyplot as plt
 # 基本設定
 plt.rcParams['font.sans-serif'] = ['Microsoft JhengHei']
 
-output_folder = 'data/procces/7_landuse_select'
+output_folder = 'data/data_procces/7_landuse_select'
 os.makedirs(output_folder, exist_ok=True)
 
 # 觀察目標土地的使用分區 =================================================
-target_df = pd.read_csv('data/procces/5_get_coordinate(target)/crawler_result_mod.csv')
+target_df = pd.read_csv('data/data_procces/5_get_coordinate(target)/crawler_result_mod.csv')
 # target_df['使用分區'].value_counts().plot(kind='bar', rot=0, color='#00B08D', figsize=(10, 6))
 target_df['使用分區'].value_counts().plot(kind='pie', rot=0, cmap=plt.get_cmap('Set3'), 
                 autopct='%1.0f%%', pctdistance=0.8, labeldistance=1.1)
 plt.savefig(os.path.join(output_folder, 'target_landuse_pie.png'))
 
 # 觀察時價登入資料的土地使用分區 ===========================================
-df = pd.read_csv('data/procces/6_sort_crawler_data/transaction_coordinate_use.csv', dtype=str)
+df = pd.read_csv('data/data_procces/6_sort_crawler_data/transaction_coordinate_use.csv', dtype=str)
 
 landuse_df = df[['都市土地使用分區', '非都市土地使用分區', '非都市土地使用編定']].drop_duplicates().reset_index(drop=True)
 

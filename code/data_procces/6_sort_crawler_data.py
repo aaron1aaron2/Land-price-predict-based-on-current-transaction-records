@@ -11,20 +11,22 @@ import os
 import pandas as pd
 
 
-output_folder = 'data/procces/6_sort_crawler_data'
+output_folder = 'data/data_procces/6_sort_crawler_data'
 os.makedirs(output_folder, exist_ok=True)
 
+# 讀取資料 =============================================================
 cols = ['year', 'month', 'day', '鄉鎮市區', '土地位置建物門牌', '土地移轉總面積平方公尺', '都市土地使用分區', 
         '非都市土地使用分區', '非都市土地使用編定', '交易筆棟數', '總價元', '單價元平方公尺']
-transaction_df = pd.read_csv('data/procces/1_sort_data/transaction_land.csv', usecols=cols,low_memory=False)
+transaction_df = pd.read_csv('data/data_procces/1_sort_data/transaction_land.csv', usecols=cols,low_memory=False)
 
-coordinate_result_df = pd.read_csv('data/procces/2_get_coordinate/crawler_result.csv', low_memory=False)
-coordinate_miss_df = pd.read_csv('data/procces/2_get_coordinate/crawler_miss.csv', low_memory=False)
+coordinate_result_df = pd.read_csv('data/data_proccess/2_get_coordinate/crawler_result.csv', low_memory=False)
+coordinate_miss_df = pd.read_csv('data/data_procces/2_get_coordinate/crawler_miss.csv', low_memory=False)
 
-land_code_tran_df = pd.read_csv('data/procces/3_land_code_transform/crawler_result.csv', low_memory=False)
+land_code_tran_df = pd.read_csv('data/data_procces/3_land_code_transform/crawler_result.csv', low_memory=False)
 
-coordinate_new_result_df = pd.read_csv('data/procces/4_get_coordinate(newcode)/crawler_result.csv', low_memory=False)
+coordinate_new_result_df = pd.read_csv('data/data_procces/4_get_coordinate(newcode)/crawler_result.csv', low_memory=False)
 
+# 合併資料 =============================================================
 coordinate_all_df = pd.concat([coordinate_result_df, coordinate_miss_df])
 coordinate_all_df.rename(columns={'xcenter': 'long', 'ycenter': 'lat'}, inplace=True)
 del coordinate_miss_df; del coordinate_result_df

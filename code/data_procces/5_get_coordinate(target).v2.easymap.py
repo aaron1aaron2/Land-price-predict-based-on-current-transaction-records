@@ -52,7 +52,7 @@ def get_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--file_path', type=str, default='data/AI競賽地籍資料.csv')
-    parser.add_argument('--output_folder', type=str, default='data/procces/5_get_coordinate(target)')
+    parser.add_argument('--output_folder', type=str, default='data/data_procces/5_get_coordinate(target)')
 
     parser.add_argument('--special_section_dict', type=str, default='data/special_section_dict.txt')
 

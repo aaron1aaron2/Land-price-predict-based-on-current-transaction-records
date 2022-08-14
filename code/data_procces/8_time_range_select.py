@@ -16,10 +16,10 @@ import seaborn as sns
 # 基本設定
 plt.rcParams['font.sans-serif'] = ['Microsoft JhengHei']
 
-output_folder = 'data/procces/8_time_range_select'
+output_folder = 'data/data_procces/8_time_range_select'
 os.makedirs(output_folder, exist_ok=True)
 
-df = pd.read_csv('data/procces/7_landuse_select/transaction_all.csv', dtype=str)
+df = pd.read_csv('data/data_procces/7_landuse_select/transaction_all.csv', dtype=str)
 
 df.dropna(subset=['都市土地使用分區', '非都市土地使用分區', '非都市土地使用編定'], how='all', inplace=True)
 

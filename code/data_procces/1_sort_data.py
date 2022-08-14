@@ -10,13 +10,13 @@ Describe: 各資料整理 & 特殊前處理
 import os
 import pandas as pd
 
-output = 'data/procces/1_sort_data'
+output = 'data/data_procces/1_sort_data'
 
 os.makedirs(output, exist_ok=True)
 
 # 處理交易資訊 ==============================
 ## 土地
-transaction_df = pd.read_csv('data/procces/0_merge_data/h_lvr_land_a.csv', low_memory=False)
+transaction_df = pd.read_csv('data/data_procces/0_merge_data/h_lvr_land_a.csv', low_memory=False)
 
 land_transaction_df = transaction_df[transaction_df["交易標的"] == "土地"]
 
