@@ -24,6 +24,7 @@ os.makedirs(output_folder, exist_ok=True)
 df = pd.read_csv('data/data_procces/5_get_coordinate(target)/crawler_result_mod.csv')
 
 df['id'] = df.index
+df.to_csv(os.path.join(output_folder, 'target_land.csv'), index=False)
 
 # 建立目標土地的 distanc matrix ========================================
 df = pd.read_csv(os.path.join(output_folder, 'target_land.csv'), usecols=['id', 'lat', 'long'])
@@ -95,5 +96,8 @@ df['group_id'] = result
 df_org = pd.read_csv(os.path.join(output_folder, 'target_land.csv'))
 df = df_org.merge(df[['id', 'coordinate', 'group_id']], how='left')
 
+from IPython import embed
+embed()
+exit()
 df.drop('result_text', axis=1, inplace=True)
 df.to_csv(os.path.join(output_folder, 'target_land_group.csv'), index=False)
