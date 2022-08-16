@@ -96,8 +96,12 @@ df['group_id'] = result
 df_org = pd.read_csv(os.path.join(output_folder, 'target_land.csv'))
 df = df_org.merge(df[['id', 'coordinate', 'group_id']], how='left')
 
-from IPython import embed
-embed()
-exit()
 df.drop('result_text', axis=1, inplace=True)
+
+
+group_center = df.groupby('group_id').apply(lambda gp: f"{gp['lat'].mean()},{gp['long'].mean()}").reset_index()
+group_center.rename({0:'group_center'}, axis=1, inplace=True)
+group_center.to_csv(os.path.join(output_folder, 'group_list.csv'), index=False)
+
+df = df.merge(group_center, how='left')
 df.to_csv(os.path.join(output_folder, 'target_land_group.csv'), index=False)
