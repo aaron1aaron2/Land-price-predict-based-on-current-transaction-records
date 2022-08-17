@@ -4,10 +4,9 @@ Github: https://github.com/aaron1aaron2
 Email: aaron1aaron2@gmail.com
 Create Date: 2022.08.16
 Last Update: 2022.08.16
-Describe: 設立對應的參考點。上下左右
+Describe: 觀察範圍內，有效的交易點
 """
 import os
-import itertools
 import pandas as pd
 
 from geopy.distance import geodesic
@@ -30,3 +29,19 @@ for gp_id in df_tar['group_id'].to_list():
     two_point_df = pd.concat([two_point_df, tmp])
 
 two_point_df = two_point_df.merge(df_tar, how='left')
+
+# def get_distance(x):
+#     try:
+#         return geodesic(x['tran_land_center'].split(','),x['group_center'].split(',')).meters
+#     except:
+#         return ''
+
+# tmp = two_point_df.head(60000).apply(lambda x: get_distance(x), axis=1) # 16.2 s/60000 筆
+
+def get_distance(x):
+    try:
+        return geodesic(x[0].split(','),x[1].split(',')).meters
+    except:
+        return ''
+
+two_point_df['linear_distance']  = list(map(get_distance, two_point_df[['tran_land_center', 'group_center']].values)) #  11.9 s/60000 筆
