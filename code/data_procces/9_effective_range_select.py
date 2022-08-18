@@ -45,6 +45,7 @@ two_point_df = two_point_df.merge(df_tar, how='left')
 
 
 def get_distance(x):
+    """部分經緯度有問題"""
     try:
         return geodesic(x[0].split(','),x[1].split(',')).meters
     except:
