@@ -7,6 +7,17 @@
 - [ ] 模型修改
 - [ ] 跑實驗
 
+## Environment settings
+### pytorch
+本專案是在 window 10、cuda(11.6)、pytorch(1.12.1)測試。
+如使用不同環境請到 [pytorch 官網](https://pytorch.org/) 選擇對應版的指令。
+```
+pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu116
+```
+### 其他相關套件
+```
+pip3 install -r requirements.txt
+```
 ## Code Source (GMAN)
 [![](https://github-readme-stats.vercel.app/api/pin/?username=VincLee8188&repo=GMAN-PyTorch)](https://github.com/VincLee8188/GMAN-PyTorch)
 
