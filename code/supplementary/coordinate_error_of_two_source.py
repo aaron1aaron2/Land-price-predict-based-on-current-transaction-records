@@ -15,11 +15,11 @@ import matplotlib.pyplot as plt
 
 from geopy.distance import geodesic
 
-output_folder = 'data/procces/supplementary'
+output_folder = 'data/supplementary/coordinate_error_of_two_source'
 os.makedirs(output_folder, exist_ok=True)
 
-df_api = pd.read_csv('data/procces/old_version/5_get_coordinate(target).v1/crawler_result.csv')
-df_easymap = pd.read_csv('data/procces/5_get_coordinate(target)/crawler_result.csv')
+df_api = pd.read_csv('data/data_procces/old_version/5_get_coordinate(target).v1/crawler_result.csv')
+df_easymap = pd.read_csv('data/data_procces/5_get_coordinate(target)/crawler_result.csv')
 
 df_api.rename(columns={'xcenter': 'long(api)', 'ycenter': 'lat(api)'}, inplace=True)
 df_easymap.drop('result_text', axis=1, inplace=True)
@@ -38,5 +38,8 @@ df = df_api.merge(df_easymap[['地段', '地號', 'lat', 'long']], on=['地段',
 df['距離誤差'] = df.apply(lambda x: geodesic([x['lat(api)'], x['long(api)']],[x['lat'], x['long']]).meters,axis=1)
 # df_AB['linear_distance'] = df_AB.apply(lambda x:geodesic(x['start_coordinate'].split(','),x['end_coordinate'].split(',')).kilometers,axis=1)
 
+plt.clf()
 df.sort_values('距離誤差').reset_index(drop=True)['距離誤差'].plot()
 plt.savefig(os.path.join(output_folder, 'coordinate_error_of_easymap_and_API.png'))
+
+df[df.距離誤差 > 500].to_csv(os.path.join(output_folder, 'error_100m.csv'), index=False)
