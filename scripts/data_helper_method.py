@@ -7,8 +7,38 @@ Create Date: 2022.08.22
 Last Update: 2022.08.22
 Describe: 集合所有方法步驟，可以一次性的透過參數設定整理資料。
 """
+import argparse
+
 import yaml
 from yaml.loader import SafeLoader
+
+def get_args():
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument('--config_path', type=str, default='configs/Basic.yaml')
+
+    full_parser = argparse.ArgumentParser(parents=[parser])
+    with open(parser.parse_known_args()[0].config_path, 'r') as f:
+        data = yaml.load(f, Loader=SafeLoader)
+        for k, v in data.items():
+            full_parser.add_argument(f'--{k}', default=v)
+
+
+    args = full_parser.parse_args()
+
+
+    return args
+
+args = get_args()
+
+
+
+
+
+
+
+
+
+
 
 
 
