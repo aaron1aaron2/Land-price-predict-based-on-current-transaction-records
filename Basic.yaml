@@ -1,0 +1,3 @@
+data:
+  transaction: data/basic/transaction.csv
+  target: data/basic/target.csv
