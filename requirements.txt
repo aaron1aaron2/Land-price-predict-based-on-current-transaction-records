@@ -3,7 +3,7 @@ tqdm
 pandas
 numpy
 pyyaml
-# tables==3.6.1
+scikit-learn
 
 # Visualization
 matplotlib>=3.4.2
