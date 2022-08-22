@@ -19,16 +19,16 @@ os.makedirs(output_folder, exist_ok=True)
 df_tar = pd.read_csv('data/method_procces/1_reference_point/reference_point.csv')
 df_tran = pd.read_csv('data/data_procces/8_time_range_select/transaction_all.csv', usecols=['long', 'lat', 'land_id'])
 df_tran.drop_duplicates(inplace=True)
+df_tran.reset_index(drop=True, inplace=True)
 df_tran['land_id'] = df_tran['land_id'].astype(int)
 
-tran_land = df_tran[['long', 'lat', 'land_id']].drop_duplicates()
-tran_land['tran_land_center'] = tran_land['lat'].astype(str) + ',' +  tran_land['long'].astype(str)
-tran_land.drop(['lat', 'long'], axis=1, inplace=True)
-tran_land['land_id'] = tran_land['land_id'].astype(int)
+df_tran['tran_center'] = df_tran['lat'].astype(str) + ',' +  df_tran['long'].astype(str)
+df_tran.drop(['lat', 'long'], axis=1, inplace=True)
+
 
 two_point_df = pd.DataFrame()
 for gp_id in df_tar['group_id'].to_list():
-    tmp = tran_land.copy()
+    tmp = df_tran.copy()
     tmp['group_id'] = gp_id
     two_point_df = pd.concat([two_point_df, tmp])
 
