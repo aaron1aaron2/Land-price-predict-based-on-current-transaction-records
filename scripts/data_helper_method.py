@@ -16,17 +16,19 @@ def get_args():
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('--config_path', type=str, default='configs/Basic.yaml')
 
+    config = read_config(parser.parse_known_args()[0].config_path)
+
+    # 讀取並合併 config 檔
     full_parser = argparse.ArgumentParser(parents=[parser])
-    with open(parser.parse_known_args()[0].config_path, 'r') as f:
+    for k, v in config.items():
+        full_parser.add_argument(f'--{k}', default=v)
+
+    return full_parser.parse_args()
+
+def read_config(path):
+    with open(path, 'r') as f:
         data = yaml.load(f, Loader=SafeLoader)
-        for k, v in data.items():
-            full_parser.add_argument(f'--{k}', default=v)
-
-
-    args = full_parser.parse_args()
-
-
-    return args
+    return data
 
 args = get_args()
 
