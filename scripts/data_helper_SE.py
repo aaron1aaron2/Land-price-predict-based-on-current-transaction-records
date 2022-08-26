@@ -1,9 +1,11 @@
 # encoding: utf-8
 """
-Author: yen-nan ho
-Contact: aaron1aaron2@gmail.com
-GitHub: https://github.com/aaron1aaron2
-Create Date:  2021.12.13
+Author: 何彥南 (yen-nan ho)
+Github: https://github.com/aaron1aaron2
+Email: aaron1aaron2@gmail.com
+Create Date: 2022.08.23
+Last Update: 2022.08.25
+Describe:
 """
 import os
 import argparse
