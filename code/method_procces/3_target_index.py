@@ -10,6 +10,7 @@ Describe: 計算每段時間，目標點、參考點在一定範圍內的區域�
 import os
 import tqdm
 import pandas as pd
+import matplotlib.pyplot as plt
 
 distance_matrix_folder = 'data/method_procces/2_calculate_distance_matrix'
 output_folder = 'data/method_procces/3_target_index'
@@ -31,7 +32,7 @@ target_cols = [i + '_DIST' for i in target_cols]
 df_tran = pd.read_csv('data/data_procces/8_time_range_select/transaction_all.csv', usecols=['land_id', 'year', 'month', 'day', '單價元平方公尺'])
 df_tran = df_tran.astype(int)
 
-date_table = 
+date_table = []
 
 for gp_file in os.listdir(distance_matrix_folder):
     df_distance = pd.read_csv(os.path.join(distance_matrix_folder, gp_file), usecols=['land_id'] + target_cols)
@@ -39,4 +40,10 @@ for gp_file in os.listdir(distance_matrix_folder):
         id_select = df_distance.loc[df_distance[col] <= dist_threshold, 'land_id'].to_list()
         df_tran_select = df_tran[df_tran['land_id'].isin(id_select)].copy()
 
-        df_tran_select.groupby(['year', 'month']).count()
+        # 區域內每月交易數量
+        # df_tran_select.groupby(['year', 'month'])['單價元平方公尺'].count()
+
+        # 區域內每月平均價
+        month_mean = df_tran_select.groupby(['year', 'month'])['單價元平方公尺'].mean()
+        # month_mean.plot()
+        # plt.show()
