@@ -1,3 +1,12 @@
+data_helper:
+  file_path: data/basic/transaction.csv
+  id_file_path: data/youbike_sort/spot_info.csv
+  output_folder: data/train_data/
+  id_col: sno
+  value_col: sbi
+  date_col: date
+  time_col: time
+  test: true
 data:
   transaction: data/basic/transaction.csv
   target: data/basic/target.csv
