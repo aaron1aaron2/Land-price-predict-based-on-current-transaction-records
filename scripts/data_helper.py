@@ -5,7 +5,7 @@ Github: https://github.com/aaron1aaron2
 Email: aaron1aaron2@gmail.com
 Create Date: 2022.08.22
 Last Update: 2022.08.22
-Describe: 集合所有方法步驟，可以一次性的透過參數設定整理資料。
+Describe: 集合所有方法步驟，可以一次性的透過參數設定整理訓練所需資料。
 """
 import os
 import sys
