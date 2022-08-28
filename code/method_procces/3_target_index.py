@@ -45,6 +45,7 @@ total_num = date_table.shape[0]
 task_ls = [(gp_file, col) for gp_file in os.listdir(distance_matrix_folder) for col in target_cols]
 fill_result_dt_ls = []
 
+# 為了看進度，不使用雙 FOR 迴圈
 pre_gp_file = ''
 gp_table = date_table.copy()
 for gp_file, col in tqdm.tqdm(task_ls):
