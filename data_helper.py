@@ -34,9 +34,61 @@ def get_args():
 
 # Step 1: group land use DBSCAN ==============================================================
 def get_DBSCAN_group(df, output_folder):
-    df['id'] = df.index
-    df.to_csv(os.path.join(output_folder, 'target_land.csv'), index=False)
+    # 整理資料
+    df_org = df.copy()
+    df = df[['id', 'lat', 'long']]
+    df_AB = pd.DataFrame(list(itertools.combinations(df['id'], 2)), 
+                        columns=['start_id', 'end_id'])
 
+    df['coordinate'] = df['lat'].astype(str) + ',' + df['long'].astype(str)
+    df.drop(['lat', 'long'], axis=1, inplace=True)
+
+    df_start = df.rename(columns={
+                'coordinate':'start_coordinate',
+                'id':'start_id'
+            })
+
+    df_AB = pd.merge(df_AB, df_start, on=['start_id'],how='left')
+
+    df_end = df_start.rename(columns={
+            'start_coordinate':'end_coordinate',
+            'start_id':'end_id'
+        })
+
+    df_AB = pd.merge(df_AB, df_end, on=['end_id'], how='left')
+
+    df_AB['linear_distance'] = df_AB.apply(lambda x:geodesic(x['start_coordinate'].split(','),x['end_coordinate'].split(',')).meters,axis=1)
+
+    df_BA = df_AB.rename(columns={
+            'end_id':'start_id',
+            'start_id':'end_id'
+    })
+
+    df_all = pd.concat([df_AB, df_BA])
+    distanct_mat = df_all.pivot_table(values='linear_distance', index=['start_id'], columns=['end_id'])
+    distanct_mat.fillna(0, inplace=True)
+
+    # 分群
+    db = DBSCAN(eps=i, min_samples=2, metric='precomputed').fit(distanct_mat) # precomputed 代表使用距離矩陣
+    df[f'DBSCAN_{i}'] = db.labels_
+
+    # 建立 group id
+    cur_id = df['DBSCAN_500'].max() +1
+
+    result = []
+    for i in df['DBSCAN_500'].to_list():
+        result.append(i) if i !=-1 else result.append(cur_id)
+        if i==-1: cur_id += 1
+
+    df['group_id'] = result
+
+    df = c.merge(df[['id', 'coordinate', 'group_id']], how='left')
+
+    group_center = df.groupby('group_id').apply(lambda gp: f"{gp['lat'].mean()},{gp['long'].mean()}").reset_index()
+    group_center.rename({0:'group_center'}, axis=1, inplace=True)
+
+    df = df.merge(group_center, how='left')
+    df.to_csv(os.path.join(output_folder, 'target_land_group.csv'), index=False)
 
     return
 
@@ -57,6 +109,7 @@ def get_DBSCAN_group(df, output_folder):
 
 
 # Step 6: generate SE data ===================================================================
+
 
 
 
@@ -96,9 +149,19 @@ def main():
     print("building data.h5 at ({})".format(output_path))
 
     # 讀取檔案 ==================================================
-    df_info = pd.read_csv(args.id_file_path)
-    df = pd.read_csv(args.file_path, dtype=str)
-    col_reads = [args.id_col, args.value_col, args.date_col, args.time_col]
+    df_info = pd.read_csv(args.data['target'])
+    df = pd.read_csv(args.data['transaction'], dtype=str)
+
+    df_info['id'] = df.index
+    df.to_csv(os.path.join(output_folder, 'target_land.csv'), index=False)
+
+
+
+
+
+
+
+    col_reads = [args.value_col, args.date_col, args.time_col]
 
     df[args.id_col] = df[args.id_col].astype(int)
 
