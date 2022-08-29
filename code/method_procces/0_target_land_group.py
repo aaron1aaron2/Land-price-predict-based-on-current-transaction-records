@@ -17,7 +17,6 @@ from matplotlib import cm, colors
 from sklearn.cluster import DBSCAN
 from geopy.distance import geodesic
 
-
 output_folder = 'data/method_procces/0_target_land_group'
 os.makedirs(output_folder, exist_ok=True)
 
