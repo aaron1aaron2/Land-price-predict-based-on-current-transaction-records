@@ -7,3 +7,5 @@ column:
   time_col: time
 output_folder:
   main: data/train_data/
+  proc: data/train_data/procces
+
