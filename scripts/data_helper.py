@@ -4,7 +4,7 @@ Author: 何彥南 (yen-nan ho)
 Github: https://github.com/aaron1aaron2
 Email: aaron1aaron2@gmail.com
 Create Date: 2022.08.29
-Last Update: 2022.08.29
+Last Update: 2022.08.31
 Describe: 集合所有方法步驟，可以一次性的透過參數設定整理訓練所需資料。
 """
 import os
@@ -38,7 +38,7 @@ def get_args():
     return args
 
 # Step 1: group land use DBSCAN ==============================================================
-def get_DBSCAN_group(df:pd.DataFrame, output_folder:str, distance_threshold:int,
+def get_DBSCAN_group(df:pd.DataFrame, output_path:str, distance_threshold:int,
                     id_col:str, coordinate_col:str, output_proc:bool) -> pd.DataFrame:
     # 整理資料
     df = df[[id_col, coordinate_col]]
@@ -93,7 +93,8 @@ def get_DBSCAN_group(df:pd.DataFrame, output_folder:str, distance_threshold:int,
     df = df.merge(group_center, how='left')
     df.drop(['lat', 'long'], axis=1, inplace=True)
 
-    df.to_csv(os.path.join(output_folder, '1_target_land_group.csv'), index=False)
+    if output_proc:
+        df.to_csv(output_path, index=False)
 
     return df
 
@@ -146,7 +147,7 @@ def read_config(path):
 def main():
     # 參數設定 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     args = get_args()
-    print("="*20 + '\n' + str(args) + "="*20)
+    print("="*20 + f'\n{str(args)}\n'+ "="*20)
 
     build_folder(args['output_folder']['main'])
     if args['control']['output_proc_file']: 
@@ -154,7 +155,12 @@ def main():
 
     config_path = os.path.join(args['output_folder']['main'], 'configures.yaml')
     # saveJson(args.__dict__, config_path))
-    save_config(args, config_path)
+
+    if (os.path.exists(config_path) & (not args['control']['overwrite_record'])):
+        print('load the record config')
+        args = read_config(config_path)
+    else:
+        save_config(args, config_path)
 
     print(f'Config has written to the {config_path}')
     output_path = os.path.join(args['output_folder']['main'], 'data.h5')
@@ -162,7 +168,6 @@ def main():
     if os.path.exists(output_path):
         print("data.h5 is already build at ({})".format(output_path))
         exit()
-
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     # 讀取檔案 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -171,44 +176,61 @@ def main():
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     # Step 1: group land use DBSCAN >>>>>>>>>>>>>>
-    print("Group land use DBSCAN...")
-    df_group = get_DBSCAN_group(
-                        df_target, 
-                        output_folder=args['output_folder']['proc'],
-                        distance_threshold=args['method']['1_distance_threshold'],
-                        id_col=args['column']['target']['id'],
-                        coordinate_col=args['column']['target']['coordinate'],
-                        output_proc=args['control']['output_proc_file']
-                        )
+    print("\nGroup land use DBSCAN...")
+    output_file = os.path.join(args['output_folder']['proc'], '1_target_land_group.csv')
+    if (args['procces_record']['step1'] & args['control']['output_proc_file']):
+        print("load record")
+        df_group = pd.read_csv(output_file)
+    else:
+        df_group = get_DBSCAN_group(
+                            df_target, 
+                            output_path=output_file,
+                            distance_threshold=args['method']['1_distance_threshold'],
+                            id_col=args['column']['target']['id'],
+                            coordinate_col=args['column']['target']['coordinate'],
+                            output_proc=args['control']['output_proc_file']
+                            )
+        args['procces_record']['step1'] = True
+        save_config(args, config_path)
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     embed()
     exit()
     # Step 2: Get reference point >>>>>>>>>>>>>>>>
-    print("Get reference point...")
+    print("\nGet reference point...")
     module, func = args['method']['2_reference_point_module'], args['method']['2_reference_point_func']
     exec(f"from {module} import {func} as reference_point")
     reference_point()
+    args['procces_record']['step2'] = True
+    save_config(args, config_path)
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     # Step 3: Calculate distance matrix >>>>>>>>>>>>>>>>>
-    print("Calculate distance matrix...")
+    print("\nCalculate distance matrix...")
 
+    args['procces_record']['step3'] = True
+    save_config(args, config_path)
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     # Step 4: Calculate customized index >>>>>>>>>
-    print("Calculate customized index...")
+    print("\nCalculate customized index...")
 
+    args['procces_record']['step4'] = True
+    save_config(args, config_path)
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     # Step 5: Create training data >>>>>>>>>>>>>>>
-    print("Create training data...")
+    print("\nCreate training data...")
 
     print(f'Successful output data.h5 to ({output_path})')
+    args['procces_record']['step5'] = True
+    save_config(args, config_path)
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     # Step 6: Generate SE data >>>>>>>>>>>>>>>>>>>
-    print("Generate SE data...")
+    print("\nGenerate SE data...")
 
+    args['procces_record']['step6'] = True
+    save_config(args, config_path)
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
