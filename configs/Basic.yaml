@@ -4,12 +4,12 @@ data:
 column:
   transaction:
     land_id: !!str land_id
-    coordinate: !!str coordinate
+    coordinate: !!str tran_coordinate
     value: !!str 單價元平方公尺
     date: !!str date
   target:
     id: !!str id # 測試
-    coordinate: !!str tran_coordinate
+    coordinate: !!str coordinate
 output_folder:
   main: !!str data/train_data/
   proc: !!str data/train_data/procces
