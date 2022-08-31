@@ -9,9 +9,12 @@ Describe: 集合所有方法步驟，可以一次性的透過參數設定整理�
 """
 import os
 import json
+import warnings
 import argparse
 import itertools
+
 import pandas as pd
+from pandas.core.common import SettingWithCopyWarning
 
 import yaml
 from yaml.loader import SafeLoader
@@ -21,6 +24,8 @@ from sklearn.cluster import DBSCAN
 from geopy.distance import geodesic
 
 from IPython import embed
+
+warnings.simplefilter(action="ignore", category=SettingWithCopyWarning)
 
 def get_args():
     parser = argparse.ArgumentParser(add_help=False)
@@ -34,11 +39,8 @@ def get_args():
 
 # Step 1: group land use DBSCAN ==============================================================
 def get_DBSCAN_group(df:pd.DataFrame, output_folder:str, distance_threshold:int,
-                    id_col:str, coordinate_col:str) -> pd.DataFrame:
+                    id_col:str, coordinate_col:str, output_proc:bool) -> pd.DataFrame:
     # 整理資料
-    embed()
-    exit()
-    df_org = df.copy()
     df = df[[id_col, coordinate_col]]
     
     df_AB = pd.DataFrame(list(itertools.combinations(df['id'], 2)), 
@@ -83,18 +85,17 @@ def get_DBSCAN_group(df:pd.DataFrame, output_folder:str, distance_threshold:int,
 
     df['group_id'] = result
 
-    df = df_org.merge(df[['id', 'coordinate', 'group_id']], how='left')
+    df = df.join(df['coordinate'].str.extract('(?P<lat>.+),(?P<long>.+)').astype(float))
 
     group_center = df.groupby('group_id').apply(lambda gp: f"{gp['lat'].mean()},{gp['long'].mean()}").reset_index()
     group_center.rename({0:'group_center'}, axis=1, inplace=True)
 
     df = df.merge(group_center, how='left')
-    df.to_csv(os.path.join(output_folder, 'target_land_group.csv'), index=False)
+    df.drop(['lat', 'long'], axis=1, inplace=True)
 
-    return
+    df.to_csv(os.path.join(output_folder, '1_target_land_group.csv'), index=False)
 
-# Step 2: get reference point ================================================================
-
+    return df
 
 
 # Step 3: Calculate distance matrix ==========================================================
@@ -145,8 +146,11 @@ def read_config(path):
 def main():
     # 參數設定 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     args = get_args()
+    print("="*20 + '\n' + str(args) + "="*20)
+
     build_folder(args['output_folder']['main'])
-    print("="*20 + '\n' + str(args))
+    if args['control']['output_proc_file']: 
+        build_folder(args['output_folder']['proc'])
 
     config_path = os.path.join(args['output_folder']['main'], 'configures.yaml')
     # saveJson(args.__dict__, config_path))
@@ -173,13 +177,17 @@ def main():
                         output_folder=args['output_folder']['proc'],
                         distance_threshold=args['method']['1_distance_threshold'],
                         id_col=args['column']['target']['id'],
-                        coordinate_col=args['column']['target']['coordinate']
+                        coordinate_col=args['column']['target']['coordinate'],
+                        output_proc=args['control']['output_proc_file']
                         )
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
+    embed()
+    exit()
     # Step 2: Get reference point >>>>>>>>>>>>>>>>
     print("Get reference point...")
-
+    module, func = args['method']['2_reference_point_module'], args['method']['2_reference_point_func']
+    exec(f"from {module} import {func} as reference_point")
+    reference_point()
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     # Step 3: Calculate distance matrix >>>>>>>>>>>>>>>>>
