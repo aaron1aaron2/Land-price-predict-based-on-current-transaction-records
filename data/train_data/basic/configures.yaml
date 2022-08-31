@@ -19,5 +19,13 @@ method:
   2_reference_point_module: method.reference_point
   2_reference_point_func: UDLR
 control:
+  overwrite_record: false
   output_proc_file: true
 SE: null
+procces_record:
+  step1: true
+  step2: false
+  step3: false
+  step4: false
+  step5: false
+  step6: false
