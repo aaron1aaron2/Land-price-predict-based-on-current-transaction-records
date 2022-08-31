@@ -99,17 +99,27 @@ def get_DBSCAN_group(df:pd.DataFrame, output_folder:str, distance_threshold:int,
 
 
 
-# Step 3: calculate distance matrix ==========================================================
+# Step 3: Calculate distance matrix ==========================================================
 
 
 
-# Step 4: Customized indedx ==================================================================
+# Step 4: Calculate customized index ===================================================================
 
 
 
 # Step 5: Create training data ===============================================================
+def train_data(df, value_col, date_col, time_col, output_folder, with_csv):
+    col_reads = [value_col, date_col, time_col]
+    df['new_id'] = df.index
+    # 轉換成 datetime 格式
+    df['datetime'] = df[date_col] + '.' + df[time_col]
+    df['datetime'] = pd.to_datetime(df['datetime'], format=r'%Y.%m.%d.%H%M%S')  
 
-
+    # 將表扭曲成 row(datetime), columns(id), value
+    df_pvt = df.pivot(index='datetime', columns='new_id', values=args.value_col)
+    df_pvt.to_hdf(os.path.join(output_folder, 'data.h5'), key='data', mode='w')
+    if with_csv:
+        df_pvt.to_csv(os.path.join(output_folder, 'data.csv'))
 
 # Step 6: generate SE data ===================================================================
 
@@ -125,11 +135,11 @@ def saveJson(data, path):
         json.dump(data, outfile, indent=2, ensure_ascii=False)
 
 def save_config(data, path):
-    with open(path, 'w') as f:
-        data = yaml.dump(data, f, sort_keys=False, default_flow_style=False)
+    with open(path, 'w', encoding='utf8') as f:
+        data = yaml.dump(data, f, sort_keys=False, default_flow_style=False, allow_unicode=True)
 
 def read_config(path):
-    with open(path, 'r') as f:
+    with open(path, 'r', encoding='utf8') as f:
         data = yaml.load(f, Loader=SafeLoader)
     return data
 
@@ -140,27 +150,26 @@ def main():
     print("="*20 + '\n' + str(args))
     build_folder(args['output_folder']['main'])
 
-    # saveJson(args.__dict__, os.path.join(args.output_folder, 'configures.json'))
-    save_config(args, os.path.join(args['output_folder']['main'], 'configures.yaml'))
+    config_path = os.path.join(args['output_folder']['main'], 'configures.yaml')
+    # saveJson(args.__dict__, config_path))
+    save_config(args, config_path)
 
+    print(f'Config has written to the {config_path}')
     output_path = os.path.join(args['output_folder']['main'], 'data.h5')
 
     if os.path.exists(output_path):
         print("data.h5 is already build at ({})".format(output_path))
         exit()
 
-    print("building data.h5 at ({})".format(output_path))
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     # 讀取檔案 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     df_target = pd.read_csv(args['data']['target'])
     df_tran = pd.read_csv(args['data']['transaction'], dtype=str)
-
-    embed()
-    exit()
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     # Step 1: group land use DBSCAN >>>>>>>>>>>>>>
+    print("Group land use DBSCAN({} meter)...".format(distance_threshold))
     df_group = get_DBSCAN_group(
                         df_target, 
                         output_folder=args['output_folder']['proc'],
@@ -169,80 +178,39 @@ def main():
                         )
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+    # Step 2: Get reference point >>>>>>>>>>>>>>>>
+    print("Get reference point...")
+
+    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+    # Step 3: Calculate distance matrix >>>>>>>>>>>>>>>>>
+    print("Calculate distance matrix...")
+
+    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+    # Step 4: Calculate customized index >>>>>>>>>
+    print("Calculate customized index...")
+
+    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+    # Step 5: Create training data >>>>>>>>>>>>>>>
+    print("Create training data...")
+
+    print(f'Successful output data.h5 to ({output_path})')
+    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+    # Step 6: Generate SE data >>>>>>>>>>>>>>>>>>>
+    print("Generate SE data...")
+
+    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
 
 
 
-    col_reads = [args.value_col, args.date_col, args.time_col]
-
-    df[args.id_col] = df[args.id_col].astype(int)
-
-    # 要給予從0開始的新 id
-    id_table = df.loc[:, [args.id_col]].drop_duplicates()
-    id_table.reset_index(drop=True, inplace=True)
-    id_table['new_id'] = id_table.index
-
-    df_info = df_info.merge(id_table, how='left')
-
-    df_info.to_csv(os.path.join(args.output_folder,'spot_info_id_table.csv'), index=False)
-
-    df = df.merge(id_table, how='left')
-
-    # 轉換成 datetime 格式
-    df['datetime'] = df[args.date_col] + '.' + df[args.time_col]
-    df['datetime'] = pd.to_datetime(df['datetime'], format=r'%Y.%m.%d.%H%M%S')  
-
-    # 將表扭曲成 row(datetime), columns(id), value
-    df_pvt = df.pivot(index='datetime', columns='new_id', values=args.value_col)
-    df_pvt.to_hdf(os.path.join(args.output_folder, 'data.h5'), key='data', mode='w')
-    if args.with_csv:
-        df_pvt.to_csv(os.path.join(args.output_folder, 'data.csv'))
-    
-    print(f'Successful output data to ({output_path})')
 if __name__ == '__main__':
     main()
 
 
 
 
-
-# Example ==================================================
-# Open the file and load the file
-"""
-
-user_details = {'UserName': 'Alice',
-                'Password': 'star123*',
-                'phone': 3256,
-                'AccessKeys': ['EmployeeTable',
-                               'SoftwaresList',
-                               'HardwareList'],
-                'dict_test':{
-                    'a': True,
-                    'b': False,
-                    'c': [1, 2, 3]
-                }}
-
-UserName: Alice
-Password: star123*
-phone: 3256
-AccessKeys:
-- EmployeeTable
-- SoftwaresList
-- HardwareList
-dict_test:
-  a: true
-  b: false
-  c:
-  - 1
-  - 2
-  - 3
-
-with open('Basic.yaml') as f:
-    data = yaml.load(f, Loader=SafeLoader)
-    print(data)
-
-with open('UserDetails.yaml', 'w') as f:
-    data = yaml.dump(user_details, f, sort_keys=False, default_flow_style=False)
-
-"""
