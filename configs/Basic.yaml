@@ -22,6 +22,8 @@ output_folder:
 # 方法參數
 method:
   1_distance_threshold: !!int 500 # meter
+  2_reference_point_module: !!str method.reference_point
+  2_reference_point_func: !!str UDLR #  Up , Down , Left , Right
 
 # 流程控制
 control:
