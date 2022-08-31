@@ -1,17 +1,18 @@
 data:
-  transaction: data/basic/transaction.csv
-  target: data/basic/target.csv
+  transaction: !!str data/basic/transaction.csv
+  target: !!str data/basic/target.csv
 column:
   transaction:
-    land_id: land_id
-    coordinate: coordinate
-    value: 單價元平方公尺
-    date: date
+    land_id: !!str land_id
+    coordinate: !!str coordinate
+    value: !!str 單價元平方公尺
+    date: !!str date
   target:
-    id: id
-    coordinate: tran_coordinate
+    id: !!str id # 測試
+    coordinate: !!str tran_coordinate
 output_folder:
-  main: data/train_data/
-  proc: data/train_data/procces
+  main: !!str data/train_data/
+  proc: !!str data/train_data/procces
 method:
+  distance_threshold: !!int 500 # meter
 SE:
