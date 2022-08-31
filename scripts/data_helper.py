@@ -33,7 +33,8 @@ def get_args():
     return args
 
 # Step 1: group land use DBSCAN ==============================================================
-def get_DBSCAN_group(df:pd.DataFrame, output_folder:str, distance_threshold:int) -> pd.DataFrame:
+def get_DBSCAN_group(df:pd.DataFrame, output_folder:str, distance_threshold:int,
+                    coordinate_col:str) -> pd.DataFrame:
     # 整理資料
     embed()
     exit()
@@ -154,13 +155,17 @@ def main():
     # 讀取檔案 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     df_target = pd.read_csv(args['data']['target'])
     df_tran = pd.read_csv(args['data']['transaction'], dtype=str)
+
+    embed()
+    exit()
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     # Step 1: group land use DBSCAN >>>>>>>>>>>>>>
     df_group = get_DBSCAN_group(
                         df_target, 
                         output_folder=args['output_folder']['proc'],
-                        distance_threshold=500
+                        distance_threshold=500,
+                        coordinate_col=args['column']['target_coordinate']
                         )
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

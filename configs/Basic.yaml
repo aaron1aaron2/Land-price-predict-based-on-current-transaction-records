@@ -2,9 +2,11 @@ data:
   transaction: data/basic/transaction.csv
   target: data/basic/target.csv
 column:
-  value_col: sbi
-  date_col: date
-  time_col: time
+  target_coordinate: coordinate
+  tran_coordinate: tran_coordinate
+  value: sbi
+  date: date
+  time: time
 output_folder:
   main: data/train_data/
   proc: data/train_data/procces
