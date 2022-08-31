@@ -23,7 +23,10 @@ output_folder:
 method:
   1_distance_threshold: !!int 500 # meter
   2_reference_point_module: !!str method.reference_point
-  2_reference_point_func: !!str UDLR #  Up , Down , Left , Right
+  2_reference_point_func: !!str UDLR # 上下左右
+  2_reference_point_distance: !!int 3000 # 公尺，詳細測試: EDA_and_preprocess\code\supplementary\m0__effective_range_select.py
+  2_lat_degree_per_100_meter: !!float 0.0009027527123486883 # 詳細測試: EDA_and_preprocess\code\method_procces\1_reference_point.py
+  2_long_degree_per_100_meter: !!float 0.0009902726875066093 # 詳細測試: EDA_and_preprocess\code\method_procces\1_reference_point.py
 
 # 流程控制
 control:
