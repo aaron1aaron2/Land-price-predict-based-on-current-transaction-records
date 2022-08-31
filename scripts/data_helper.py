@@ -38,8 +38,7 @@ def get_args():
     return args
 
 # Step 1: group land use DBSCAN ==============================================================
-def get_DBSCAN_group(df:pd.DataFrame, output_path:str, distance_threshold:int,
-                    id_col:str, coordinate_col:str, output_proc:bool) -> pd.DataFrame:
+def get_DBSCAN_group(df:pd.DataFrame, distance_threshold:int, id_col:str, coordinate_col:str) -> pd.DataFrame:
     # 整理資料
     df = df[[id_col, coordinate_col]]
     
@@ -92,9 +91,6 @@ def get_DBSCAN_group(df:pd.DataFrame, output_path:str, distance_threshold:int,
 
     df = df.merge(group_center, how='left')
     df.drop(['lat', 'long'], axis=1, inplace=True)
-
-    if output_proc:
-        df.to_csv(output_path, index=False)
 
     return df
 
@@ -168,6 +164,12 @@ def main():
     if os.path.exists(output_path):
         print("data.h5 is already build at ({})".format(output_path))
         exit()
+
+    # 動態讀取
+    module, func = args['method']['2_reference_point_module'], args['method']['2_reference_point_func']
+    exec(f"from {module} import {func} as reference_point")
+        
+    output_proc = args['control']['output_proc_file']
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     # 讀取檔案 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -188,8 +190,10 @@ def main():
                             distance_threshold=args['method']['1_distance_threshold'],
                             id_col=args['column']['target']['id'],
                             coordinate_col=args['column']['target']['coordinate'],
-                            output_proc=args['control']['output_proc_file']
+                            output_proc=
                             )
+        if output_proc:
+            df_group.to_csv(output_path, index=False)
         args['procces_record']['step1'] = True
         save_config(args, config_path)
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -197,11 +201,15 @@ def main():
     exit()
     # Step 2: Get reference point >>>>>>>>>>>>>>>>
     print("\nGet reference point...")
-    module, func = args['method']['2_reference_point_module'], args['method']['2_reference_point_func']
-    exec(f"from {module} import {func} as reference_point")
-    reference_point()
-    args['procces_record']['step2'] = True
-    save_config(args, config_path)
+    output_file = os.path.join(args['output_folder']['proc'], '1_reference_point.csv')
+    if (args['procces_record']['step2'] & args['control']['output_proc_file']):
+        print("load record")
+        df_refer_point = pd.read_csv(output_file)
+    else:
+        df_refer_point = reference_point(df_group)
+        args['procces_record']['step2'] = True
+        save_config(args, config_path)
+
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     # Step 3: Calculate distance matrix >>>>>>>>>>>>>>>>>
