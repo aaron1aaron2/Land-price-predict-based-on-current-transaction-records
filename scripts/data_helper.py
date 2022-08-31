@@ -210,9 +210,6 @@ if __name__ == '__main__':
 # Example ==================================================
 # Open the file and load the file
 """
-with open('Basic.yaml') as f:
-    data = yaml.load(f, Loader=SafeLoader)
-    print(data)
 
 user_details = {'UserName': 'Alice',
                 'Password': 'star123*',
@@ -241,6 +238,9 @@ dict_test:
   - 2
   - 3
 
+with open('Basic.yaml') as f:
+    data = yaml.load(f, Loader=SafeLoader)
+    print(data)
 
 with open('UserDetails.yaml', 'w') as f:
     data = yaml.dump(user_details, f, sort_keys=False, default_flow_style=False)
