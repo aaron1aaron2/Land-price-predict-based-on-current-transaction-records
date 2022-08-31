@@ -169,12 +169,12 @@ def main():
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     # Step 1: group land use DBSCAN >>>>>>>>>>>>>>
-    print("Group land use DBSCAN({} meter)...".format(distance_threshold))
+    print("Group land use DBSCAN({} meter)...".format(args['method']['distance_threshold']))
     df_group = get_DBSCAN_group(
                         df_target, 
                         output_folder=args['output_folder']['proc'],
                         distance_threshold=500,
-                        coordinate_col=args['column']['target_coordinate']
+                        coordinate_col=args['column']['target']['coordinate']
                         )
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -205,12 +205,5 @@ def main():
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
-
-
-
 if __name__ == '__main__':
     main()
-
-
-
-
