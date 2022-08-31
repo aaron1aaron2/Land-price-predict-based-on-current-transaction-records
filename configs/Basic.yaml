@@ -1,6 +1,9 @@
+# 主要輸入資料
 data:
-  transaction: !!str data/basic/transaction.csv
-  target: !!str data/basic/target.csv
+  transaction: !!str data/input/transaction.csv
+  target: !!str data/input/target.csv
+
+# 主要輸入資料中使用的欄位
 column:
   transaction:
     land_id: !!str land_id
@@ -8,11 +11,21 @@ column:
     value: !!str 單價元平方公尺
     date: !!str date
   target:
-    id: !!str id # 測試
+    id: !!str id 
     coordinate: !!str coordinate
+
+# 輸出資料夾
 output_folder:
-  main: !!str data/train_data/
-  proc: !!str data/train_data/procces
+  main: !!str data/train_data/basic
+  proc: !!str data/train_data/basic/procces
+
+# 方法參數
 method:
-  distance_threshold: !!int 500 # meter
+  1_distance_threshold: !!int 500 # meter
+
+# 流程控制
+control:
+  output_proc_file: !!bool true
+
+# GMAN 所需的 spatial embedding (這部分使用 node2vec，edge 值使用直線距離)
 SE:
