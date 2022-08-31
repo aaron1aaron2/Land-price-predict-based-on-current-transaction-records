@@ -2,12 +2,16 @@ data:
   transaction: data/basic/transaction.csv
   target: data/basic/target.csv
 column:
-  target_coordinate: coordinate
-  tran_coordinate: tran_coordinate
-  value: sbi
-  date: date
-  time: time
+  transaction:
+    land_id: land_id
+    coordinate: coordinate
+    value: 單價元平方公尺
+    date: date
+  target:
+    id: id
+    coordinate: tran_coordinate
 output_folder:
   main: data/train_data/
   proc: data/train_data/procces
-
+method:
+SE:
