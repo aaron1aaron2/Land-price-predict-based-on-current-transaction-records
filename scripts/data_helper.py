@@ -34,17 +34,15 @@ def get_args():
 
 # Step 1: group land use DBSCAN ==============================================================
 def get_DBSCAN_group(df:pd.DataFrame, output_folder:str, distance_threshold:int,
-                    coordinate_col:str) -> pd.DataFrame:
+                    id_col:str, coordinate_col:str) -> pd.DataFrame:
     # 整理資料
     embed()
     exit()
     df_org = df.copy()
-    df = df[['id', 'lat', 'long']]
+    df = df[[id_col, coordinate_col]]
+    
     df_AB = pd.DataFrame(list(itertools.combinations(df['id'], 2)), 
                         columns=['start_id', 'end_id'])
-
-    df['coordinate'] = df['lat'].astype(str) + ',' + df['long'].astype(str)
-    df.drop(['lat', 'long'], axis=1, inplace=True)
 
     df_start = df.rename(columns={
                 'coordinate':'start_coordinate',
@@ -147,8 +145,8 @@ def read_config(path):
 def main():
     # 參數設定 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     args = get_args()
-    print("="*20 + '\n' + str(args))
     build_folder(args['output_folder']['main'])
+    print("="*20 + '\n' + str(args))
 
     config_path = os.path.join(args['output_folder']['main'], 'configures.yaml')
     # saveJson(args.__dict__, config_path))
@@ -169,11 +167,12 @@ def main():
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     # Step 1: group land use DBSCAN >>>>>>>>>>>>>>
-    print("Group land use DBSCAN({} meter)...".format(args['method']['distance_threshold']))
+    print("Group land use DBSCAN...")
     df_group = get_DBSCAN_group(
                         df_target, 
                         output_folder=args['output_folder']['proc'],
-                        distance_threshold=500,
+                        distance_threshold=args['method']['1_distance_threshold'],
+                        id_col=args['column']['target']['id'],
                         coordinate_col=args['column']['target']['coordinate']
                         )
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
