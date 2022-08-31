@@ -16,6 +16,8 @@ output_folder:
   proc: data/train_data/basic/procces
 method:
   1_distance_threshold: 500
+  2_reference_point_module: method.reference_point
+  2_reference_point_func: UDLR
 control:
   output_proc_file: true
 SE: null
