@@ -18,6 +18,9 @@ method:
   1_distance_threshold: 500
   2_reference_point_module: method.reference_point
   2_reference_point_func: UDLR
+  2_reference_point_distance: 3000
+  2_lat_degree_per_100_meter: 0.0009027527123486883
+  2_long_degree_per_100_meter: 0.0009902726875066093
 control:
   overwrite_record: false
   output_proc_file: true
