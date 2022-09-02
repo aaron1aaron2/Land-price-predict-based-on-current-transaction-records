@@ -30,17 +30,17 @@ method:
 
 # 流程控制
 control:
-  overwrite_record: !!bool false
-  output_proc_file: !!bool true
+  overwrite_record: !!bool false # 是否要覆蓋已有的輸出資料
+  output_proc_file: !!bool true # 是否要輸出過程中產生的資料，可用來恢復進度
 
 # GMAN 所需的 spatial embedding (這部分使用 node2vec，edge 值使用直線距離)
 SE:
 
 # 紀錄執行進度
 procces_record:
-  step1: !!bool false
-  step2: !!bool false
-  step3: !!bool false
-  step4: !!bool false
-  step5: !!bool false
-  step6: !!bool false
+  step1: !!bool false # group land use DBSCAN
+  step2: !!bool false # Get reference point
+  step3: !!bool false # Calculate distance matrix
+  step4: !!bool false # Calculate customized index
+  step5: !!bool false # Create training data 
+  step6: !!bool false # Generate SE data
