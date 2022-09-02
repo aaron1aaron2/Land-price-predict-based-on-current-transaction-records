@@ -13,10 +13,8 @@ import decimal
 import pandas as pd
 
 from functools import partial
-from geopy.distance import geodesic
 
-def UDLR(df:pd.DataFrame, distance:int, long_per_100_meter:float, lat_per_100_meter:float,
-        output_path:str) -> pd.DataFrame:
+def UDLR(df:pd.DataFrame, distance:int, long_per_100_meter:float, lat_per_100_meter:float) -> pd.DataFrame:
     """
     上下左右固定距離(公尺)的位置:
     """
@@ -46,6 +44,5 @@ def UDLR(df:pd.DataFrame, distance:int, long_per_100_meter:float, lat_per_100_me
         ), df['group_center'].to_list()))
 
     df = df.merge(pd.DataFrame(result_ls), how='left')
-    df.to_csv(os.path.join(output_folder, 'reference_point.csv'), index=False)
 
     return df
