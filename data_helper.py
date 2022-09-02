@@ -94,7 +94,8 @@ def get_DBSCAN_group(df:pd.DataFrame, distance_threshold:int, id_col:str, coordi
 
     return df
 
-
+def reference_point(args):
+    
 # Step 3: Calculate distance matrix ==========================================================
 
 
@@ -139,10 +140,19 @@ def read_config(path):
         data = yaml.load(f, Loader=SafeLoader)
     return data
 
-def update_cnfig(data, update_dt, path):
-    data.update(update_dt)
-    with open(path, 'w', encoding='utf8') as f:
-        data = yaml.dump(data, f, sort_keys=False, default_flow_style=False, allow_unicode=True)
+def update_config(data, path, update_locat, update_dt):
+    if type(update_locat) == str:
+        data[update_locat].update(update_dt)
+    elif len(update_locat) == 1:
+        data[update_locat[0]].update(update_dt)
+    else:
+        d = data
+        for key in update_locat[:-1]:
+            d = d[key]
+        d.update(update_dt)
+
+    save_config(data, path)
+
     return data
 
 # main process =================================================
@@ -151,33 +161,41 @@ def main():
     args = get_args()
     print("="*20 + f'\n{str(args)}\n'+ "="*20)
 
+    # 主要參數 --------------
     output_proc = args['control']['output_proc_file']
+    overwrite_record = args['control']['overwrite_record']
     record = args['procces_record']
 
-    build_folder(args['output_folder']['main'])
+    main_out_folder = args['output_folder']['main']
+    proc_out_folder = args['output_folder']['proc']
+
+    # 輸出資料夾 -----------
+    build_folder(main_out_folder)
     if output_proc: 
-        build_folder(args['output_folder']['proc'])
+        build_folder(proc_out_folder)
 
-    config_path = os.path.join(args['output_folder']['main'], 'configures.yaml')
-    # saveJson(args.__dict__, config_path))
+    # config out -----------
+    config_path = os.path.join(main_out_folder, 'configures.yaml')
 
-    if (os.path.exists(config_path) & (not args['control']['overwrite_record'])):
+    if (os.path.exists(config_path) & (not overwrite_record)):
         print('load the record config')
         args = read_config(config_path)
     else:
         save_config(args, config_path)
 
     print(f'Config has written to the {config_path}')
-    output_path = os.path.join(args['output_folder']['main'], 'data.h5')
+
+    # data out -------------
+    output_path = os.path.join(main_out_folder, 'data.h5')
 
     if os.path.exists(output_path):
         print("data.h5 is already build at ({})".format(output_path))
         exit()
 
-    # 動態讀取
+    # 動態讀取項目 ----------
     module, func = args['method']['2_reference_point_module'], args['method']['2_reference_point_func']
     exec(f"from {module} import {func} as reference_point")
-        
+
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     # 讀取檔案 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -187,36 +205,42 @@ def main():
 
     # Step 1: group land use DBSCAN >>>>>>>>>>>>>>
     print("\nGroup land use DBSCAN...")
-    output_file = os.path.join(args['output_folder']['proc'], '1_target_land_group.csv')
+    output_file = os.path.join(proc_out_folder, '1_target_land_group.csv')
     if (record['step1'] & output_proc):
         print("load record")
         df_group = pd.read_csv(output_file)
     else:
         df_group = get_DBSCAN_group(
-                            df_target, 
-                            distance_threshold=args['method']['1_distance_threshold'],
-                            id_col=args['column']['target']['id'],
-                            coordinate_col=args['column']['target']['coordinate'],
-                            )
+                df_target,
+                distance_threshold=args['method']['1_distance_threshold'],
+                id_col=args['column']['target']['id'],
+                coordinate_col=args['column']['target']['coordinate'],
+            )
         if output_proc:
             df_group.to_csv(output_file, index=False)
-
-        args['procces_record']['step1'] = True
-        save_config(args, config_path)
+        args = update_config(args, config_path, 'procces_record', {'step1': True})
+        # args['procces_record']['step1'] = True
+        # save_config(args, config_path)
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    embed()
-    exit()
+
     # Step 2: Get reference point >>>>>>>>>>>>>>>>
     print("\nGet reference point...")
-    output_file = os.path.join(args['output_folder']['proc'], '1_reference_point.csv')
+    output_file = os.path.join(proc_out_folder, '2_reference_point.csv')
     if (record['step2'] & output_proc):
         print("load record")
         df_refer_point = pd.read_csv(output_file)
     else:
-        df_refer_point = reference_point(df_group)
-        args['procces_record']['step2'] = True
-        save_config(args, config_path)
-
+        df_refer_point = reference_point(
+                df_group,
+                distance=args['method']['2_reference_point_distance'],
+                lat_per_100_meter=args['method']['2_lat_degree_per_100_meter'],
+                long_per_100_meter=args['method']['2_long_degree_per_100_meter'] 
+            )
+        args = update_config(args, config_path, 'procces_record', {'step2': True})
+        # args['procces_record']['step2'] = True
+        # save_config(args, config_path)
+    embed()
+    exit()
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     # Step 3: Calculate distance matrix >>>>>>>>>>>>>>>>>
