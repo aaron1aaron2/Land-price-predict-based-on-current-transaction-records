@@ -41,7 +41,7 @@ def UDLR(df:pd.DataFrame, distance:int, long_per_100_meter:float, lat_per_100_me
             target_meter=distance, 
             long_per_100_meter=long_per_100_meter, 
             lat_per_100_meter=lat_per_100_meter
-        ), df['group_center'].to_list()))
+        ), df['group_center'].unique()))
 
     df = df.merge(pd.DataFrame(result_ls), how='left')
 
