@@ -12,6 +12,7 @@ import json
 import warnings
 import argparse
 import itertools
+import importlib
 
 import pandas as pd
 from pandas.core.common import SettingWithCopyWarning
@@ -94,8 +95,13 @@ def get_DBSCAN_group(df:pd.DataFrame, distance_threshold:int, id_col:str, coordi
 
     return df
 
-def reference_point(args):
-    
+# Step 3: reference_point ==========================================================
+def reference_point(module, func, **kwargs)->pd.DataFrame:
+    # exec(f"from {module} import {func} as my_reference_point") # 讀取延遲
+    my_reference_point = getattr(importlib.import_module(f'{module}'), func)
+
+    return my_reference_point(**kwargs)
+
 # Step 3: Calculate distance matrix ==========================================================
 
 
@@ -113,7 +119,7 @@ def train_data(df, value_col, date_col, time_col, output_folder, with_csv):
     df['datetime'] = pd.to_datetime(df['datetime'], format=r'%Y.%m.%d.%H%M%S')  
 
     # 將表扭曲成 row(datetime), columns(id), value
-    df_pvt = df.pivot(index='datetime', columns='new_id', values=args.value_col)
+    df_pvt = df.pivot(index='datetime', columns='new_id', values=value_col)
     df_pvt.to_hdf(os.path.join(output_folder, 'data.h5'), key='data', mode='w')
     if with_csv:
         df_pvt.to_csv(os.path.join(output_folder, 'data.csv'))
@@ -164,7 +170,6 @@ def main():
     # 主要參數 --------------
     output_proc = args['control']['output_proc_file']
     overwrite_record = args['control']['overwrite_record']
-    record = args['procces_record']
 
     main_out_folder = args['output_folder']['main']
     proc_out_folder = args['output_folder']['proc']
@@ -185,16 +190,14 @@ def main():
 
     print(f'Config has written to the {config_path}')
 
+    record = args['procces_record']
+
     # data out -------------
     output_path = os.path.join(main_out_folder, 'data.h5')
 
     if os.path.exists(output_path):
         print("data.h5 is already build at ({})".format(output_path))
         exit()
-
-    # 動態讀取項目 ----------
-    module, func = args['method']['2_reference_point_module'], args['method']['2_reference_point_func']
-    exec(f"from {module} import {func} as reference_point")
 
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -219,8 +222,6 @@ def main():
         if output_proc:
             df_group.to_csv(output_file, index=False)
         args = update_config(args, config_path, 'procces_record', {'step1': True})
-        # args['procces_record']['step1'] = True
-        # save_config(args, config_path)
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     # Step 2: Get reference point >>>>>>>>>>>>>>>>
@@ -231,14 +232,16 @@ def main():
         df_refer_point = pd.read_csv(output_file)
     else:
         df_refer_point = reference_point(
-                df_group,
+                module = args['method']['2_reference_point_module'], 
+                func=args['method']['2_reference_point_func'],
+                df=df_group,
                 distance=args['method']['2_reference_point_distance'],
                 lat_per_100_meter=args['method']['2_lat_degree_per_100_meter'],
                 long_per_100_meter=args['method']['2_long_degree_per_100_meter'] 
             )
+        if output_proc:
+            df_refer_point.to_csv(output_file, index=False)
         args = update_config(args, config_path, 'procces_record', {'step2': True})
-        # args['procces_record']['step2'] = True
-        # save_config(args, config_path)
     embed()
     exit()
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
