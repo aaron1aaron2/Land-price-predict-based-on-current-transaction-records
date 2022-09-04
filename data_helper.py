@@ -4,7 +4,7 @@ Author: 何彥南 (yen-nan ho)
 Github: https://github.com/aaron1aaron2
 Email: aaron1aaron2@gmail.com
 Create Date: 2022.08.29
-Last Update: 2022.08.31
+Last Update: 2022.09.04
 Describe: 集合所有方法步驟，可以一次性的透過參數設定整理訓練所需資料。
 """
 import os
@@ -95,7 +95,7 @@ def get_DBSCAN_group(df:pd.DataFrame, distance_threshold:int, id_col:str, coordi
 
     return df
 
-# Step 3: reference_point ==========================================================
+# Step 2: reference_point ==========================================================
 def reference_point(module, func, **kwargs)->pd.DataFrame:
     # exec(f"from {module} import {func} as my_reference_point") # 讀取延遲
     my_reference_point = getattr(importlib.import_module(f'{module}'), func)
@@ -232,7 +232,7 @@ def main():
         df_refer_point = pd.read_csv(output_file)
     else:
         df_refer_point = reference_point(
-                module = args['method']['2_reference_point_module'], 
+                module=args['method']['2_reference_point_module'], 
                 func=args['method']['2_reference_point_func'],
                 df=df_group,
                 distance=args['method']['2_reference_point_distance'],
