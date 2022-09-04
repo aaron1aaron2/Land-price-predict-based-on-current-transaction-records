@@ -7,9 +7,6 @@ Create Date: 2022.08.31
 Last Update: 2022.08.31
 Describe: 建立參考點的 function，可以放在這。
 """
-import os
-
-import decimal
 import pandas as pd
 
 from functools import partial
