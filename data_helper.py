@@ -8,7 +8,7 @@ Last Update: 2022.09.04
 Describe: 集合所有方法步驟，可以一次性的透過參數設定整理訓練所需資料。
 """
 import os
-import json
+
 import warnings
 import argparse
 import itertools
@@ -17,12 +17,10 @@ import importlib
 import pandas as pd
 from pandas.core.common import SettingWithCopyWarning
 
-import yaml
-from yaml.loader import SafeLoader
-
-from pathlib import Path
 from sklearn.cluster import DBSCAN
 from geopy.distance import geodesic
+
+from PropGman.utils import *
 
 from IPython import embed
 
@@ -96,7 +94,7 @@ def get_DBSCAN_group(df:pd.DataFrame, distance_threshold:int, id_col:str, coordi
     return df
 
 # Step 2: reference_point ==========================================================
-def reference_point(module, func, **kwargs)->pd.DataFrame:
+def reference_point(module, func, **kwargs) -> pd.DataFrame:
     # exec(f"from {module} import {func} as my_reference_point") # 讀取延遲
     my_reference_point = getattr(importlib.import_module(f'{module}'), func)
 
@@ -130,36 +128,6 @@ def train_data(df, value_col, date_col, time_col, output_folder, with_csv):
 
 
 # utils ======================================================================================
-def build_folder(path):
-    Path(path).mkdir(parents=True, exist_ok=True)
-
-def saveJson(data, path):
-    with open(path, 'w', encoding='utf-8') as outfile:  
-        json.dump(data, outfile, indent=2, ensure_ascii=False)
-
-def save_config(data, path):
-    with open(path, 'w', encoding='utf8') as f:
-        data = yaml.dump(data, f, sort_keys=False, default_flow_style=False, allow_unicode=True)
-
-def read_config(path):
-    with open(path, 'r', encoding='utf8') as f:
-        data = yaml.load(f, Loader=SafeLoader)
-    return data
-
-def update_config(data, path, update_locat, update_dt):
-    if type(update_locat) == str:
-        data[update_locat].update(update_dt)
-    elif len(update_locat) == 1:
-        data[update_locat[0]].update(update_dt)
-    else:
-        d = data
-        for key in update_locat[:-1]:
-            d = d[key]
-        d.update(update_dt)
-
-    save_config(data, path)
-
-    return data
 
 # main process =================================================
 def main():
