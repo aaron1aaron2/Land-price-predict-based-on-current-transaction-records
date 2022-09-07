@@ -11,6 +11,9 @@ import pandas as pd
 
 from functools import partial
 
+from PropGman.utils import timer
+
+@timer
 def UDLR(df:pd.DataFrame, distance:int, long_per_100_meter:float, lat_per_100_meter:float) -> pd.DataFrame:
     """
     上下左右固定距離(公尺)的位置:
