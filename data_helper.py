@@ -17,6 +17,7 @@ import pandas as pd
 from pandas.core.common import SettingWithCopyWarning
 
 from PropGman.utils import *
+from PropGman.method.land_group import LandGroup
 
 from IPython import embed
 
@@ -31,12 +32,6 @@ def get_args():
     args.update(config)
 
     return args
-
-# Step 1: group land use DBSCAN ==============================================================
-
-
-# Step 2: reference_point ==========================================================
-
 
 # Step 3: Calculate distance matrix ==========================================================
 
@@ -119,7 +114,8 @@ def main():
         print("load record")
         df_group = pd.read_csv(output_file)
     else:
-        df_group = get_DBSCAN_group(
+        land_gp = LandGroup(method=args['method']['1_group_method'])
+        df_group = land_gp.main(
                 df_target,
                 distance_threshold=args['method']['1_distance_threshold'],
                 id_col=args['column']['target']['id'],
@@ -127,6 +123,7 @@ def main():
             )
         if output_proc:
             df_group.to_csv(output_file, index=False)
+
         args = update_config(args, config_path, 'procces_record', {'step1': True})
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -145,11 +142,14 @@ def main():
                 lat_per_100_meter=args['method']['2_lat_degree_per_100_meter'],
                 long_per_100_meter=args['method']['2_long_degree_per_100_meter'] 
             )
+
         if output_proc:
             df_refer_point.to_csv(output_file, index=False)
+
         args = update_config(args, config_path, 'procces_record', {'step2': True})
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
+    embed()
+    exit()
     # Step 3: Calculate distance matrix >>>>>>>>>>>>>>>>>
     print("\nCalculate distance matrix...")
 
