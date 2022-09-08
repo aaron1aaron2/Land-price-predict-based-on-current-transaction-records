@@ -85,6 +85,6 @@ def timer(func):
         value = func(*args, **kargs)
         t_end = time.time()
         t_count = t_end - t_start
-        print('[timeuse]', t_count)
+        print(f'[timeuse] {round(t_count, 5)} seconds')
         return value
     return wrap
