@@ -16,25 +16,25 @@ from geopy.distance import geodesic
 from PropGman.utils import timer
 
 class LandGroup:
-    def __init__(self, method:str):
+    def __init__(self, method='DBSCAN'):
         super(LandGroup, self).__init__()
         self.method = method
 
         self.method_ls = ['DBSCAN']
         
         if method not in self.method_ls: 
-            raise AttributeError(f"module 'LandGroup' has no attribute 'DBSCAN'")
+            raise AttributeError(f"module 'LandGroup' has no attribute '{method}' method")
 
     def _get_distance_matrix(self, df, id_col, coordinate_col):
         # 整理資料
         df = df[[id_col, coordinate_col]]
         
-        df_AB = pd.DataFrame(list(itertools.combinations(df['id'], 2)), 
+        df_AB = pd.DataFrame(list(itertools.combinations(df[id_col], 2)), 
                             columns=['start_id', 'end_id'])
 
         df_start = df.rename(columns={
-                    'coordinate':'start_coordinate',
-                    'id':'start_id'
+                    coordinate_col:'start_coordinate',
+                    id_col:'start_id'
                 })
 
         df_AB = pd.merge(df_AB, df_start, on=['start_id'],how='left')
@@ -59,17 +59,20 @@ class LandGroup:
 
         return distanct_mat
 
-    def get_new_id(self, df):
+    def _get_new_id(self, df):
         cur_id = df[self.method].max() +1
 
         result = []
-        for i in df['DBSCAN'].to_list():
+        for i in df[self.method].to_list():
             result.append(i) if i !=-1 else result.append(cur_id)
             if i==-1: cur_id += 1
+        
+        return result
+
     @timer
     def main(self, df:pd.DataFrame, distance_threshold:int, id_col:str, coordinate_col:str) -> pd.DataFrame:
 
-        distanct_mat = self._get_distance_matrix(df)
+        distanct_mat = self._get_distance_matrix(df, id_col, coordinate_col)
 
         # 分群
         if self.method in ['DBSCAN', 'dbscan']:
@@ -77,11 +80,9 @@ class LandGroup:
             df[self.method] = db.labels_
 
         # 建立 group id
+        df['group_id'] = self._get_new_id(df)
 
-
-        df['group_id'] = result
-
-        df = df.join(df['coordinate'].str.extract('(?P<lat>.+),(?P<long>.+)').astype(float))
+        df = df.join(df[coordinate_col].str.extract('(?P<lat>.+),(?P<long>.+)').astype(float))
 
         group_center = df.groupby('group_id').apply(lambda gp: f"{gp['lat'].mean()},{gp['long'].mean()}").reset_index()
         group_center.rename({0:'group_center'}, axis=1, inplace=True)
