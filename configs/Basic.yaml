@@ -22,6 +22,7 @@ output_folder:
 # 方法參數
 method:
   1_distance_threshold: !!int 500 # meter
+  1_group_method: !!str DBSCAN
   2_reference_point_module: !!str PropGman.method.reference_point
   2_reference_point_func: !!str UDLR # 上下左右
   2_reference_point_distance: !!int 3000 # 公尺，詳細測試: EDA_and_preprocess\code\supplementary\m0__effective_range_select.py
