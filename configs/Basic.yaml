@@ -37,6 +37,7 @@ control:
 # GMAN 所需的 spatial embedding (這部分使用 node2vec，edge 值使用直線距離)
 SE:
 
+# ----------------------------------- 動態 -----------------------------------
 # 紀錄執行進度
 procces_record:
   step1: !!bool false # group land use DBSCAN
