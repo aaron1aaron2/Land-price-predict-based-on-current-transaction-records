@@ -100,9 +100,7 @@ def main():
         print("data.h5 is already build at ({})".format(output_path))
         exit()
 
-    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-    # 讀取檔案 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    # 讀取檔案 -------------
     df_target = pd.read_csv(args['data']['target'])
     df_tran = pd.read_csv(args['data']['transaction'], dtype=str)
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
