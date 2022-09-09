@@ -18,6 +18,7 @@ from pandas.core.common import SettingWithCopyWarning
 
 from PropGman.utils import *
 from PropGman.method.land_group import LandGroup
+from PropGman.method.corrdinate_distance import get_distance
 
 from IPython import embed
 
@@ -34,7 +35,10 @@ def get_args():
     return args
 
 # Step 3: Calculate distance matrix ==========================================================
-
+def get_distance_matrix(df_target:pd.DataFrame, df_tra:pd.DataFramen, tran_coor_col:str, target_coor_cols:list) -> list:
+    embed()
+    exit()
+    get_distance()    
 
 
 # Step 4: Calculate customized index ===================================================================
@@ -146,13 +150,26 @@ def main():
 
         args = update_config(args, config_path, 'procces_record', {'step2': True})
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    embed()
-    exit()
+
     # Step 3: Calculate distance matrix >>>>>>>>>>>>>>>>>
     print("\nCalculate distance matrix...")
+    get_distance_matrix
+    output_file = os.path.join(proc_out_folder, '1_target_land_group.csv')
+    if (record['step1'] & output_proc):
+        print("load record")
+        df_group = pd.read_csv(output_file)
+    else:
+        land_gp = LandGroup(method=args['method']['1_group_method'])
+        df_group = land_gp.main(
+                df_target,
+                distance_threshold=args['method']['1_distance_threshold'],
+                id_col=args['column']['target']['id'],
+                coordinate_col=args['column']['target']['coordinate'],
+            )
+        if output_proc:
+            df_group.to_csv(output_file, index=False)
 
-    args['procces_record']['step3'] = True
-    save_config(args, config_path)
+        args = update_config(args, config_path, 'procces_record', {'step1': True})
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     # Step 4: Calculate customized index >>>>>>>>>
