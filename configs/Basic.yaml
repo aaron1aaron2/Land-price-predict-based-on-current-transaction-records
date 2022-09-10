@@ -22,12 +22,22 @@ output_folder:
 # 方法參數
 method:
   1_distance_threshold: !!int 500 # meter
-  1_group_method: !!str DBSCAN
+  1_group_method: !!str DBSCAN # 分群演算法
   2_reference_point_module: !!str PropGman.method.reference_point
   2_reference_point_func: !!str UDLR # 上下左右
   2_reference_point_distance: !!int 3000 # 公尺，詳細測試: EDA_and_preprocess\code\supplementary\m0__effective_range_select.py
   2_lat_degree_per_100_meter: !!float 0.0009027527123486883 # 詳細測試: EDA_and_preprocess\code\method_procces\1_reference_point.py
   2_long_degree_per_100_meter: !!float 0.0009902726875066093 # 詳細測試: EDA_and_preprocess\code\method_procces\1_reference_point.py
+  3_transactiont_id_col: !!str 'land_id' # 交易點 id
+  3_transaction_coordinate_col: !!str 'tran_coordinate' # 交易點經緯
+  3_target_id_col: !!str 'group_id' # 目標點 id
+  3_target_coordinate_cols: !!seq # 目標點與參考點經緯度
+    - 'group_center'
+    - 'refer_point1'
+    - 'refer_point2'
+    - 'refer_point3'
+    - 'refer_point4'
+  3_max_distance: !!int 10000 #公尺，目標點與參考點對該筆交易的距離上限，可節省儲存空間
 
 # 流程控制
 control:
