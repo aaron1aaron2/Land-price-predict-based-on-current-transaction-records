@@ -8,6 +8,7 @@ Last Update: 2022.09.07
 Describe: 集合所有方法步驟，可以一次性的透過參數設定整理訓練所需資料。
 """
 import os
+import tqdm
 
 import warnings
 import argparse
@@ -35,11 +36,31 @@ def get_args():
     return args
 
 # Step 3: Calculate distance matrix ==========================================================
-def get_distance_matrix(df_target:pd.DataFrame, df_tra:pd.DataFramen, tran_coor_col:str, target_coor_cols:list) -> list:
-    embed()
-    exit()
-    get_distance()    
+def get_distance_table(df_target:pd.DataFrame, df_tran:pd.DataFrame, tran_coor_col:str, target_coor_cols:list,
+            tran_id_col:str, group_id_col:str, output_folder:str, output_proc:bool,
+            max_distance:int) -> list:
+    df_target = df_target[[group_id_col] + target_coor_cols].drop_duplicates()
+    df_tran = df_tran[[tran_id_col, tran_coor_col]]
+    distance_dt = {}
+    for gp_id in tqdm.tqdm(df_target[group_id_col].to_list()):
+        df_coor = df_tran.copy()
+        df_coor[group_id_col] = gp_id
+        df_coor = df_coor.merge(df_target, how='left', on=[group_id_col])
 
+        df_coor_dup = df_coor.drop_duplicates(target_coor_cols + [tran_coor_col])
+        for col in target_coor_cols:
+            df_coor_dup = df_coor_dup.assign(**{f'{col}_DIST':list(map(get_distance, df_coor_dup[[tran_coor_col, col]].values))})
+            df_coor_dup = df_coor_dup[~(df_coor_dup[f'{col}_DIST']=='')]
+
+        result = df_coor_dup[(df_coor_dup[[f'{col}_DIST' for col in target_coor_cols]]<max_distance).all(axis=1)]
+        
+        if output_proc:
+            build_folder(output_folder)
+            result.to_csv(os.path.join(output_folder, f'group{gp_id}_DIST.csv'), index=False)
+
+        distance_dt[gp_id] = result
+
+    return distance_dt
 
 # Step 4: Calculate customized index ===================================================================
 
@@ -153,25 +174,27 @@ def main():
 
     # Step 3: Calculate distance matrix >>>>>>>>>>>>>>>>>
     print("\nCalculate distance matrix...")
-    get_distance_matrix
-    output_file = os.path.join(proc_out_folder, '1_target_land_group.csv')
-    if (record['step1'] & output_proc):
+    output_folder = os.path.join(proc_out_folder, '3_distance_matrix')
+    if (record['step3'] & output_proc):
         print("load record")
-        df_group = pd.read_csv(output_file)
+        distance_dt = {}
+        for gp_id in tqdm.tqdm(df_target[args['method']['3_target_id_col']].to_list()):
+            distance_dt[gp_id] = pd.read_csv(os.path.join(output_folder, f'group{gp_id}_DIST.csv'))
     else:
-        land_gp = LandGroup(method=args['method']['1_group_method'])
-        df_group = land_gp.main(
-                df_target,
-                distance_threshold=args['method']['1_distance_threshold'],
-                id_col=args['column']['target']['id'],
-                coordinate_col=args['column']['target']['coordinate'],
-            )
-        if output_proc:
-            df_group.to_csv(output_file, index=False)
-
-        args = update_config(args, config_path, 'procces_record', {'step1': True})
+        distance_dt = get_distance_table(
+            df_refer_point, df_tran, 
+            tran_coor_col=args['method']['3_transaction_coordinate_col'],
+            target_coor_cols=args['method']['3_target_coordinate_cols'],
+            group_id_col=args['method']['3_target_id_col'],
+            tran_id_col=args['method']['3_transactiont_id_col'],
+            max_distance=args['method']['3_max_distance'],
+            output_folder=output_folder,
+            output_proc=output_proc
+        )
+        args = update_config(args, config_path, 'procces_record', {'step3': True})
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
+    embed()
+    exit()
     # Step 4: Calculate customized index >>>>>>>>>
     print("\nCalculate customized index...")
 
