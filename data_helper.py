@@ -183,10 +183,10 @@ def main():
     else:
         distance_dt = get_distance_table(
             df_refer_point, df_tran, 
-            tran_coor_col=args['method']['3_transaction_coordinate_col'],
-            target_coor_cols=args['method']['3_target_coordinate_cols'],
-            group_id_col=args['method']['3_target_id_col'],
-            tran_id_col=args['method']['3_transactiont_id_col'],
+            tran_coor_col=args['column']['transaction']['coordinate'],
+            target_coor_cols=args['column']['procces']['target_coordinate_cols'],
+            group_id_col=args['column']['procces']['target_id_col'],
+            tran_id_col=args['column']['transaction']['land_id'],
             max_distance=args['method']['3_max_distance'],
             output_folder=output_folder,
             output_proc=output_proc
