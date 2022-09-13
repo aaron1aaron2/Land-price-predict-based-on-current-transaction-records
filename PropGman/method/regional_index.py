@@ -14,5 +14,10 @@ from PropGman.utils import timer
 
 
 class RegionalIndex:
-    def __init__(self, method='DBSCAN'):
-        super(LandGroup, self).__init__()
+    def __init__(self, method:str, start_date:str, end_date:str, dist_threshold:int):
+        super(RegionalIndex, self).__init__()
+
+        self.method = method
+        self.start_date = start_date
+        self.end_date = end_date
+        self.dist_threshold = dist_threshold
