@@ -12,7 +12,7 @@ import tqdm
 
 import warnings
 import argparse
-import importlib
+# import importlib
 
 import pandas as pd
 from pandas.core.common import SettingWithCopyWarning
@@ -20,6 +20,7 @@ from pandas.core.common import SettingWithCopyWarning
 from PropGman.utils import *
 from PropGman.method.land_group import LandGroup
 from PropGman.method.corrdinate_distance import get_distance
+from PropGman.method import reference_point
 
 from IPython import embed
 
@@ -47,11 +48,13 @@ def get_distance_table(df_target:pd.DataFrame, df_tran:pd.DataFrame, tran_coor_c
         df_coor[group_id_col] = gp_id
         df_coor = df_coor.merge(df_target, how='left', on=[group_id_col])
 
+        # 計算參考點與目標點的距離
         df_coor_dup = df_coor.drop_duplicates(target_coor_cols + [tran_coor_col])
         for col in target_coor_cols:
             df_coor_dup = df_coor_dup.assign(**{f'{col}_DIST':list(map(get_distance, df_coor_dup[[tran_coor_col, col]].values))})
             df_coor_dup = df_coor_dup[~(df_coor_dup[f'{col}_DIST']=='')]
 
+        # 不儲存距離超過 max_distance 的經緯度距離
         result = df_coor_dup[(df_coor_dup[[f'{col}_DIST' for col in target_coor_cols]]<max_distance).all(axis=1)]
         
         if output_proc:
@@ -105,7 +108,6 @@ def main():
     if output_proc: 
         build_folder(proc_out_folder)
 
-    # config out -----------
     config_path = os.path.join(main_out_folder, 'configures.yaml')
 
     if (os.path.exists(config_path) & (not overwrite_record)):
@@ -118,11 +120,10 @@ def main():
 
     record = args['procces_record']
 
-    # data out -------------
-    output_path = os.path.join(main_out_folder, 'data.h5')
+    main_output_path = os.path.join(main_out_folder, 'data.h5')
 
-    if os.path.exists(output_path):
-        print("data.h5 is already build at ({})".format(output_path))
+    if os.path.exists(main_output_path):
+        print("data.h5 is already build at ({})".format(main_output_path))
         exit()
 
     # 讀取檔案 -------------
@@ -149,7 +150,8 @@ def main():
 
         args = update_config(args, config_path, 'procces_record', {'step1': True})
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
+    embed()
+    exit()
     # Step 2: Get reference point >>>>>>>>>>>>>>>>
     print("\nGet reference point...")
     output_file = os.path.join(proc_out_folder, '2_reference_point.csv')
@@ -157,10 +159,12 @@ def main():
         print("load record")
         df_refer_point = pd.read_csv(output_file)
     else:
-        module, func = args['method']['2_reference_point_module'], args['method']['2_reference_point_func']
-        reference_point = getattr(importlib.import_module(f'{module}'), func)
-        df_refer_point = reference_point(
+        # get_reference_point = getattr(importlib.import_module('PropGman.method.reference_point'), args['method']['2_reference_point_func'])
+        get_reference_point = getattr(reference_point, 
+                        args['method']['2_reference_point_func'])
+        df_refer_point = get_reference_point(
                 df=df_group,
+                target_coordinate_cols=args['column']['procces']['target_coordinate_cols'],
                 distance=args['method']['2_reference_point_distance'],
                 lat_per_100_meter=args['method']['2_lat_degree_per_100_meter'],
                 long_per_100_meter=args['method']['2_long_degree_per_100_meter'] 
@@ -195,8 +199,8 @@ def main():
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     embed()
     exit()
-    # Step 4: Calculate customized Regional Indicators >>>>>>>>>
-    print("\nCalculate customized Regional Indicators...")
+    # Step 4: Calculate customized Regional Index >>>>>>>>>
+    print("\nCalculate customized Regional Index...")
     output_folder = os.path.join(proc_out_folder, '4_regional_indicators.csv')
     if (record['step4'] & output_proc):
         print("load record")
