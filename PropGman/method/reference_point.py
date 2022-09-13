@@ -35,9 +35,7 @@ def UDLR(df:pd.DataFrame, target_coordinate_cols:list, distance:int, long_per_10
 
 
         return result
-    from IPython import embed
-    embed()
-    exit()
+
     target_point = target_coordinate_cols[0]
     refer_point = target_coordinate_cols[1:]
 
