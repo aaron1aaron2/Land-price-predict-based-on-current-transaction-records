@@ -195,11 +195,15 @@ def main():
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     embed()
     exit()
-    # Step 4: Calculate customized index >>>>>>>>>
-    print("\nCalculate customized index...")
+    # Step 4: Calculate customized Regional Indicators >>>>>>>>>
+    print("\nCalculate customized Regional Indicators...")
+    output_folder = os.path.join(proc_out_folder, '4_regional_indicators.csv')
+    if (record['step4'] & output_proc):
+        print("load record")
 
-    args['procces_record']['step4'] = True
-    save_config(args, config_path)
+    else:
+
+        args = update_config(args, config_path, 'procces_record', {'step4': True})
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     # Step 5: Create training data >>>>>>>>>>>>>>>
