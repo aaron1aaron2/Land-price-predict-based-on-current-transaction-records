@@ -16,7 +16,7 @@ from geopy.distance import geodesic
 from PropGman.utils import timer
 
 class LandGroup:
-    def __init__(self, method='DBSCAN'):
+    def __init__(self, method:str='DBSCAN'):
         super(LandGroup, self).__init__()
         self.method = method
 
