@@ -150,8 +150,8 @@ def main():
 
         args = update_config(args, config_path, 'procces_record', {'step1': True})
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    embed()
-    exit()
+
+    
     # Step 2: Get reference point >>>>>>>>>>>>>>>>
     print("\nGet reference point...")
     output_file = os.path.join(proc_out_folder, '2_reference_point.csv')
