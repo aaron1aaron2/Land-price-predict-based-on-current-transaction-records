@@ -10,7 +10,6 @@ Describe: 計算每段時間，目標點、參考點在一定範圍內的區域�
 import os
 import tqdm
 import pandas as pd
-# import matplotlib.pyplot as plt
 
 distance_matrix_folder = 'data/method_procces/2_calculate_distance_matrix'
 output_folder = 'data/method_procces/3_target_index'
