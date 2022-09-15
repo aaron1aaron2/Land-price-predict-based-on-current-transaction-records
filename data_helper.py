@@ -4,7 +4,7 @@ Author: 何彥南 (yen-nan ho)
 Github: https://github.com/aaron1aaron2
 Email: aaron1aaron2@gmail.com
 Create Date: 2022.08.29
-Last Update: 2022.09.07
+Last Update: 2022.09.15
 Describe: 集合所有方法步驟，可以一次性的透過參數設定整理訓練所需資料。
 """
 import os
@@ -18,9 +18,11 @@ import pandas as pd
 from pandas.core.common import SettingWithCopyWarning
 
 from PropGman.utils import *
+
+from PropGman.method import reference_point
 from PropGman.method.land_group import LandGroup
 from PropGman.method.corrdinate_distance import get_distance
-from PropGman.method import reference_point
+from PropGman.method.regional_index import RegionalIndex
 
 from IPython import embed
 
@@ -66,7 +68,20 @@ def get_distance_table(df_target:pd.DataFrame, df_tran:pd.DataFrame, tran_coor_c
     return distance_dt
 
 # Step 4: Calculate customized index ===================================================================
+def get_customized_index(df_distance:pd.DataFrame, df_tran:pd.DataFrame, method:str, target_value_col:str, col:str,
+        start_date:str, end_date:str, time_freq:str, dist_threshold:int):
+    regional_index = RegionalIndex(start_date, end_date, time_freq, dist_threshold)
 
+    task_ls = [(gp_file, col) for gp_file in os.listdir(distance_matrix_folder) for col in target_cols]
+    fill_result_dt_ls = []
+
+    pre_gp_file = ''
+    gp_table = regional_index.date_table.copy()
+    for gp_file, col in tqdm.tqdm(task_ls):
+        if gp_file != pre_gp_file:
+            df_distance = pd.read_csv(os.path.join(distance_matrix_folder, gp_file), usecols=['land_id'] + target_cols)
+
+        regional_index.get_index(df_distance, df_tran, method, target_value_col, col)
 
 
 # Step 5: Create training data ===============================================================
@@ -175,15 +190,15 @@ def main():
 
         args = update_config(args, config_path, 'procces_record', {'step2': True})
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
+    embed()
+    exit()
     # Step 3: Calculate distance matrix >>>>>>>>>>>>>>>>>
     print("\nCalculate distance matrix...")
     output_folder = os.path.join(proc_out_folder, '3_distance_matrix')
     if (record['step3'] & output_proc):
+        for gp in df_group['group_id'].unique():
+            assert os.listdir(output_folder)
         print("load record")
-        distance_dt = {}
-        for gp_id in tqdm.tqdm(df_target[args['method']['3_target_id_col']].to_list()):
-            distance_dt[gp_id] = pd.read_csv(os.path.join(output_folder, f'group{gp_id}_DIST.csv'))
     else:
         distance_dt = get_distance_table(
             df_refer_point, df_tran, 
