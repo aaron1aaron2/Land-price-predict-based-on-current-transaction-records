@@ -23,6 +23,9 @@ class RegionalIndex:
         # 距離範圍
         self.dist_threshold = dist_threshold
 
+        self.date_table = self._get_date_table()
+        self.total_time_step = self.date_table.shape[0]
+
     def _get_date_table(self):
         # 日期基準
         date_ls = pd.date_range(start=self.start_date, end=self.end_date, freq=self.time_freq)
@@ -30,11 +33,10 @@ class RegionalIndex:
                 'year': date_ls.year,
                 'month': date_ls.month
             })
-        self.total_time_step = date_table.shape[0]
 
         return date_table
 
-    def _fill_na(self, df, col, gp_file):
+    def _fill_na(self, df, col):
         na_num = df[df[col].isna()].shape[0]
 
         f_fill = df[col].fillna(method='ffill')
@@ -45,7 +47,7 @@ class RegionalIndex:
         unable_fill_na_num = f_b_avg_fill[f_b_avg_fill.isna()].shape[0]
 
         record = {
-            'file':gp_file, 'column_name':col, 
+            'column_name':col, 
             'na_num':na_num, 'unable_fill_na':unable_fill_na_num,
             'na_rate':round(na_num/self.total_time_step, 2), 
             'unable_fill_na_rate':round(unable_fill_na_num/self.total_time_step, 2)
@@ -57,21 +59,15 @@ class RegionalIndex:
         id_select = df_distance.loc[df_distance[col] <= self.dist_threshold, 'land_id'].to_list()
         df_tran_select = df_tran[df_tran['land_id'].isin(id_select)].copy()
 
-        date_table = self._get_date_table()
-
-        # df_tran_select.groupby(['year', 'month'])['單價元平方公尺'].count()
         if method=='mean':
             month_mean = df_tran_select.groupby(['year', 'month'])[target_value_col].mean()
+        elif method=='count':
+            df_tran_select.groupby(['year', 'month'])[target_value_col].count()
         else:
             month_mean = df_tran_select.groupby(['year', 'month'])[target_value_col].mean()
 
-        month_mean = date_table.merge(month_mean.reset_index(), how='left')
+        month_mean = self.date_table.merge(month_mean.reset_index(), how='left')
 
-        self._fill_na(month_mean, target_value_col)
+        result, record = self._fill_na(month_mean, target_value_col)
 
-        {
-            'file':gp_file, 'column_name':col, 
-            'na_num':na_num, 'unable_fill_na':unable_fill_na_num,
-            'na_rate':round(na_num/self.total_time_step, 2), 
-            'unable_fill_na_rate':round(unable_fill_na_num/self.total_time_step, 2)
-        }
+        return result, record
