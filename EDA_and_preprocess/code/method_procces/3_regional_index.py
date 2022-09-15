@@ -16,7 +16,6 @@ output_folder = 'data/method_procces/3_target_index'
 os.makedirs(output_folder, exist_ok=True)
 os.makedirs(os.path.join(output_folder, 'groups'), exist_ok=True)
 
-
 dist_threshold = 3000
 target_value_col = '單價元平方公尺'
 
