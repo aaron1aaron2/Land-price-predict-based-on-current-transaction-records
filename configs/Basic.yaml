@@ -41,6 +41,7 @@ method:
   4_index_distance_threshold: !!int 3000 # 交易有效距離
   4_index_start_date: !!str '2012-7'
   4_index_end_date: !!str '2022-4'
+  4_index_time_freq: !!str 'M' # 'M' 月、'D' 天、'H' 小時 | '3M' 三個月
 
 
 # 流程控制
