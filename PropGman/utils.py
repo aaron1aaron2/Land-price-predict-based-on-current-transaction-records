@@ -35,11 +35,11 @@ def read_config(path):
 
 def update_config(data, path, update_locat, update_dt):
     if type(update_locat) == str:
-        if update_locat in data:
+        if update_locat not in data:
             data[update_locat] = {}
         data[update_locat].update(update_dt)
     elif len(update_locat) == 1:
-        if update_locat in data:
+        if update_locat not in data:
             data[update_locat[0]] = {}
         data[update_locat[0]].update(update_dt)
     else:
