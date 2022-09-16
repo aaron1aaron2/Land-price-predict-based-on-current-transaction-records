@@ -53,7 +53,7 @@ class RegionalIndex:
             'unable_fill_na_rate':round(unable_fill_na_num/self.total_time_step, 2)
         }
 
-        return unable_fill_na_num, record
+        return f_b_avg_fill, record
 
     def get_index(self, df_distance:pd.DataFrame, df_tran:pd.DataFrame, method:str, target_value_col:str, col:str):
         id_select = df_distance.loc[df_distance[col] <= self.dist_threshold, 'land_id'].to_list()
