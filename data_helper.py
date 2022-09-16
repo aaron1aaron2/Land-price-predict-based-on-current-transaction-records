@@ -57,7 +57,6 @@ def get_distance_table(df_target:pd.DataFrame, df_tran:pd.DataFrame, tran_coor_c
         # 不儲存距離超過 max_distance 的經緯度距離
         result = df_coor_dup[(df_coor_dup[[f'{col}_DIST' for col in target_coor_cols]]<max_distance).all(axis=1)]
         
-        build_folder(output_folder)
         result.to_csv(os.path.join(output_folder, f'group{gp_id}_DIST.csv'), index=False)
 
 # Step 4: Calculate customized index ===================================================================
@@ -203,6 +202,7 @@ def main():
     # Step 3: Calculate distance matrix >>>>>>>>>>>>>>>>>
     print("\nCalculate distance matrix...")
     output_folder = os.path.join(proc_out_folder, '3_distance_matrix')
+    build_folder(output_folder)
     if (record['step3'] & output_proc):
         print("check record")
         for gp in df_group['group_id'].unique():
@@ -219,27 +219,29 @@ def main():
             output_folder=output_folder
         )
         args = update_config(args, config_path, 'procces_record', {'step3': True})
-        args = update_config(args, config_path, 'output_files', {'3_distance_matrix': {output_folder: os.listdir(output_folder)}})
+        args = update_config(args, config_path, 'output_files', {'3_distance_matrix': {'folder':output_folder, 'files':os.listdir(output_folder)}})
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     embed()
     exit()
     # Step 4: Calculate customized Regional Index >>>>>>>>>
     print("\nCalculate customized Regional Index...")
-    output_file = os.path.join(proc_out_folder, '4_regional_indicators.csv')
+    output_folder = os.path.join(proc_out_folder, '4_regional_indicators')
+    build_folder(output_folder)
     if (record['step4'] & output_proc):
         print("check record")
     else:
-        # result_df, fillna_result = get_customized_index(
-        #     distance_mat_folder=output_file, 
-        #     df_tran, 
-        #     method, 
-        #     target_cols, 
-        #     target_value_col, 
-        #     start_date, 
-        #     end_date, 
-        #     time_freq, 
-        #     dist_threshold
-        # )
+        for method in tqdm.tqdm(args['method']['4_index_method']):
+            result_df, fillna_result = get_customized_index(
+                distance_mat_folder=args['output_files']['3_distance_matrix']['folder'], 
+                df_tran=df_tran, 
+                method=method, 
+                target_cols=args['column']['procces']['target_coordinate_cols'], 
+                target_value_col=args['column']['transaction']['value'], 
+                start_date, 
+                end_date, 
+                time_freq, 
+                dist_threshold
+            )
         args = update_config(args, config_path, 'procces_record', {'step4': True})
         args = update_config(args, config_path, 'output_files', {'4_regional_indicators': output_file})
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
