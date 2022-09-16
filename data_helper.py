@@ -3,8 +3,8 @@
 Author: 何彥南 (yen-nan ho)
 Github: https://github.com/aaron1aaron2
 Email: aaron1aaron2@gmail.com
-Create Date: 2022.08.29
-Last Update: 2022.09.15
+Create Date: 2022.09.06
+Last Update: 2022.09.16
 Describe: 集合所有方法步驟，可以一次性的透過參數設定整理訓練所需資料。
 """
 import os
@@ -152,6 +152,7 @@ def main():
     df_tran = pd.read_csv(args['data']['transaction'], dtype=str)
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+
     # Step 1: group land use DBSCAN >>>>>>>>>>>>>>
     print("\nGroup land use DBSCAN...")
     output_file = os.path.join(proc_out_folder, '1_target_land_group.csv')
@@ -173,7 +174,7 @@ def main():
         args = update_config(args, config_path, 'output_files', {'1_target_land_group': output_file})
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-    
+
     # Step 2: Get reference point >>>>>>>>>>>>>>>>
     print("\nGet reference point...")
     output_file = os.path.join(proc_out_folder, '2_reference_point.csv')
@@ -199,6 +200,7 @@ def main():
         args = update_config(args, config_path, 'output_files', {'2_reference_point': output_file})
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+
     # Step 3: Calculate distance matrix >>>>>>>>>>>>>>>>>
     print("\nCalculate distance matrix...")
     output_folder = os.path.join(proc_out_folder, '3_distance_matrix')
@@ -221,30 +223,39 @@ def main():
         args = update_config(args, config_path, 'procces_record', {'step3': True})
         args = update_config(args, config_path, 'output_files', {'3_distance_matrix': {'folder':output_folder, 'files':os.listdir(output_folder)}})
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    embed()
-    exit()
+
+
     # Step 4: Calculate customized Regional Index >>>>>>>>>
     print("\nCalculate customized Regional Index...")
     output_folder = os.path.join(proc_out_folder, '4_regional_indicators')
     build_folder(output_folder)
     if (record['step4'] & output_proc):
         print("check record")
+        for method in tqdm.tqdm(args['method']['4_index_method']):
+            assert f'{method}.csv' in os.listdir(output_folder), f'load faile: file {method}.csv not found'
     else:
         for method in tqdm.tqdm(args['method']['4_index_method']):
-            result_df, fillna_result = get_customized_index(
-                distance_mat_folder=args['output_files']['3_distance_matrix']['folder'], 
-                df_tran=df_tran, 
-                method=method, 
-                target_cols=args['column']['procces']['target_coordinate_cols'], 
-                target_value_col=args['column']['transaction']['value'], 
-                start_date, 
-                end_date, 
-                time_freq, 
-                dist_threshold
-            )
+            output_file = os.path.join(output_folder, f'{method}.csv')
+            if not os.path.exists(output_file):
+                result_df, fillna_result = get_customized_index(
+                    distance_mat_folder=args['output_files']['3_distance_matrix']['folder'], 
+                    df_tran=df_tran, 
+                    method=method, 
+                    target_cols=args['column']['procces']['target_coordinate_cols'], 
+                    target_value_col=args['column']['transaction']['value'], 
+                    start_date=args['method']['4_index_start_date'], 
+                    end_date=args['method']['4_index_end_date'], 
+                    time_freq=args['method']['4_index_time_freq'], 
+                    dist_threshold=args['method']['4_index_distance_threshold']
+                )
+                if output_proc:
+                    result_df.to_csv(output_file, index=False)
+                    fillna_result.to_csv(output_file.replace('.csv', '_fillna.csv'), index=False)
+
         args = update_config(args, config_path, 'procces_record', {'step4': True})
-        args = update_config(args, config_path, 'output_files', {'4_regional_indicators': output_file})
+        args = update_config(args, config_path, 'output_files', {'3_distance_matrix': {'folder':output_folder, 'files':os.listdir(output_folder)}})
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
 
     # Step 5: Create training data >>>>>>>>>>>>>>>
     print("\nCreate training data...")
@@ -253,6 +264,7 @@ def main():
     args['procces_record']['step5'] = True
     save_config(args, config_path)
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
 
     # Step 6: Generate SE data >>>>>>>>>>>>>>>>>>>
     print("\nGenerate SE data...")
