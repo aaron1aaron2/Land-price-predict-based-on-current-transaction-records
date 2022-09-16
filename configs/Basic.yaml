@@ -5,14 +5,17 @@ data:
 
 # 主要輸入資料中使用的欄位
 column:
+  # 時價登入資料 --------
   transaction:
     land_id: !!str land_id
     coordinate: !!str tran_coordinate
     value: !!str 單價元平方公尺
     date: !!str date
+  # 目標土地資料 --------
   target:
     id: !!str id 
     coordinate: !!str coordinate
+  # 過程中使用欄位資料 --------
   procces:
     target_id_col: !!str 'group_id' # 目標點 id
     target_coordinate_cols: !!seq # 目標點(第一個)與參考點經緯度
@@ -29,24 +32,26 @@ output_folder:
 
 # 方法參數
 method:
+  # step 1 --------
   1_distance_threshold: !!int 500 # meter
   1_group_method: !!str DBSCAN # 分群演算法
+  # step 2 --------
   2_reference_point_func: !!str UDLR # 上下左右，可在 PropGman\method\reference_point.py 擴充
   2_reference_point_distance: !!int 3000 # 公尺，詳細測試: EDA_and_preprocess\code\supplementary\m0__effective_range_select.py
   2_lat_degree_per_100_meter: !!float 0.0009027527123486883 # 詳細測試: EDA_and_preprocess\code\method_procces\1_reference_point.py
   2_long_degree_per_100_meter: !!float 0.0009902726875066093 # 詳細測試: EDA_and_preprocess\code\method_procces\1_reference_point.py
+  # step 3 --------
   3_max_distance: !!int 10000 #公尺，目標點與參考點對該筆交易的距離上限，可節省儲存空間
+  # step 4 --------
   4_index_method: !!seq # 統計指標或計算方式，可在 PropGman\method\regional_index.py 底下自行擴充
     - 'mean' 
   4_index_distance_threshold: !!int 3000 # 交易有效距離
   4_index_start_date: !!str '2012-7'
   4_index_end_date: !!str '2022-4'
-  4_index_time_freq: !!str 'M' # 'M' 月、'D' 天、'H' 小時 | '3M' 三個月
-
+  4_index_time_freq: !!str 'M' # 'M' 月，目前只支援月
 
 # 流程控制
 control:
-  overwrite_record: !!bool false # 是否要覆蓋已有的輸出資料
   output_proc_file: !!bool true # 是否要輸出過程中產生的資料，可用來恢復進度
 
 # GMAN 所需的 spatial embedding (這部分使用 node2vec，edge 值使用直線距離)
@@ -61,3 +66,6 @@ procces_record:
   step4: !!bool false # Calculate customized index
   step5: !!bool false # Create training data 
   step6: !!bool false # Generate SE data
+
+# 紀錄輸出的資料位置
+output_files: {}
