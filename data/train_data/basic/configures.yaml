@@ -49,3 +49,17 @@ procces_record:
 output_files:
   1_target_land_group: data/train_data/basic/procces\1_target_land_group.csv
   2_reference_point: data/train_data/basic/procces\2_reference_point.csv
+  3_distance_matrix:
+    folder: data/train_data/basic/procces\3_distance_matrix
+    files:
+    - group0_DIST.csv
+    - group10_DIST.csv
+    - group1_DIST.csv
+    - group2_DIST.csv
+    - group3_DIST.csv
+    - group4_DIST.csv
+    - group5_DIST.csv
+    - group6_DIST.csv
+    - group7_DIST.csv
+    - group8_DIST.csv
+    - group9_DIST.csv
