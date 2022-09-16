@@ -44,7 +44,6 @@ def get_distance_table(df_target:pd.DataFrame, df_tran:pd.DataFrame, tran_coor_c
             max_distance:int) -> list:
     df_target = df_target[[group_id_col] + target_coor_cols].drop_duplicates()
     df_tran = df_tran[[tran_id_col, tran_coor_col]]
-    distance_dt = {}
     for gp_id in tqdm.tqdm(df_target[group_id_col].to_list()):
         df_coor = df_tran.copy()
         df_coor[group_id_col] = gp_id
@@ -59,30 +58,40 @@ def get_distance_table(df_target:pd.DataFrame, df_tran:pd.DataFrame, tran_coor_c
         # 不儲存距離超過 max_distance 的經緯度距離
         result = df_coor_dup[(df_coor_dup[[f'{col}_DIST' for col in target_coor_cols]]<max_distance).all(axis=1)]
         
-        if output_proc:
-            build_folder(output_folder)
-            result.to_csv(os.path.join(output_folder, f'group{gp_id}_DIST.csv'), index=False)
-
-        distance_dt[gp_id] = result
-
-    return distance_dt
+        build_folder(output_folder)
+        result.to_csv(os.path.join(output_folder, f'group{gp_id}_DIST.csv'), index=False)
 
 # Step 4: Calculate customized index ===================================================================
-def get_customized_index(df_distance:pd.DataFrame, df_tran:pd.DataFrame, method:str, target_value_col:str, col:str,
+def get_customized_index(distance_mat_folder:str, df_tran:pd.DataFrame, method:str, target_cols:list, target_value_col:str,
         start_date:str, end_date:str, time_freq:str, dist_threshold:int):
+
     regional_index = RegionalIndex(start_date, end_date, time_freq, dist_threshold)
 
-    task_ls = [(gp_file, col) for gp_file in os.listdir(distance_matrix_folder) for col in target_cols]
+    task_ls = [(gp_file, col) for gp_file in os.listdir(distance_mat_folder) for col in target_cols]
     fill_result_dt_ls = []
 
     pre_gp_file = ''
+    result_df = pd.DataFrame()
     gp_table = regional_index.date_table.copy()
     for gp_file, col in tqdm.tqdm(task_ls):
+        embed()
+        exit()
         if gp_file != pre_gp_file:
-            df_distance = pd.read_csv(os.path.join(distance_matrix_folder, gp_file), usecols=['land_id'] + target_cols)
+            df_distance = pd.read_csv(os.path.join(distance_mat_folder, gp_file), usecols=['land_id'] + target_cols)
 
-        regional_index.get_index(df_distance, df_tran, method, target_value_col, col)
+        result, record = regional_index.get_index(df_distance, df_tran, method, target_value_col, col)
 
+        fill_result_dt_ls.append(record)
+
+        if (gp_file == pre_gp_file) | (pre_gp_file==''):
+            gp_table[col] = result
+            if all([i in gp_table.columns for i in target_cols]):
+                result_df = result_df.append(gp_table)
+        else:
+            gp_table = regional_index.date_table.copy()
+            gp_table[col] = result
+
+        return result_df, pd.DataFrame(fill_result_dt_ls)
 
 # Step 5: Create training data ===============================================================
 def train_data(df, value_col, date_col, time_col, output_folder, with_csv):
@@ -196,9 +205,10 @@ def main():
     print("\nCalculate distance matrix...")
     output_folder = os.path.join(proc_out_folder, '3_distance_matrix')
     if (record['step3'] & output_proc):
+        print("check record")
         for gp in df_group['group_id'].unique():
-            assert os.listdir(output_folder)
-        print("load record")
+            file_name = f'group{gp}_DIST'
+            assert file_name in os.listdir(output_folder), f'load faile: file {file_name} not found'
     else:
         distance_dt = get_distance_table(
             df_refer_point, df_tran, 
@@ -216,12 +226,21 @@ def main():
     exit()
     # Step 4: Calculate customized Regional Index >>>>>>>>>
     print("\nCalculate customized Regional Index...")
-    output_folder = os.path.join(proc_out_folder, '4_regional_indicators.csv')
+    output_file = os.path.join(proc_out_folder, '4_regional_indicators.csv')
     if (record['step4'] & output_proc):
-        print("load record")
-
+        print("check record")
     else:
-
+        result_df, fillna_result = get_customized_index(
+            distance_mat_folder, 
+            df_tran, 
+            method, 
+            target_cols, 
+            target_value_col, 
+            start_date, 
+            end_date, 
+            time_freq, 
+            dist_threshold
+        )
         args = update_config(args, config_path, 'procces_record', {'step4': True})
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
