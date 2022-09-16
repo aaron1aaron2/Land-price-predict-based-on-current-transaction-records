@@ -40,8 +40,7 @@ def get_args():
 
 # Step 3: Calculate distance matrix ==========================================================
 def get_distance_table(df_target:pd.DataFrame, df_tran:pd.DataFrame, tran_coor_col:str, target_coor_cols:list,
-            tran_id_col:str, group_id_col:str, output_folder:str, output_proc:bool,
-            max_distance:int) -> list:
+            tran_id_col:str, group_id_col:str, output_folder:str, max_distance:int) -> list:
     df_target = df_target[[group_id_col] + target_coor_cols].drop_duplicates()
     df_tran = df_tran[[tran_id_col, tran_coor_col]]
     for gp_id in tqdm.tqdm(df_target[group_id_col].to_list()):
@@ -122,7 +121,6 @@ def main():
 
     # 主要參數 --------------
     output_proc = args['control']['output_proc_file']
-    overwrite_record = args['control']['overwrite_record']
 
     main_out_folder = args['output_folder']['main']
     proc_out_folder = args['output_folder']['proc']
@@ -134,7 +132,7 @@ def main():
 
     config_path = os.path.join(main_out_folder, 'configures.yaml')
 
-    if (os.path.exists(config_path) & (not overwrite_record)):
+    if (os.path.exists(config_path)):
         print('load the record config')
         args = read_config(config_path)
     else:
@@ -173,6 +171,7 @@ def main():
             df_group.to_csv(output_file, index=False)
 
         args = update_config(args, config_path, 'procces_record', {'step1': True})
+        args = update_config(args, config_path, 'output_files', {'1_target_land_group': output_file})
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     
@@ -198,29 +197,29 @@ def main():
             df_refer_point.to_csv(output_file, index=False)
 
         args = update_config(args, config_path, 'procces_record', {'step2': True})
+        args = update_config(args, config_path, 'output_files', {'2_reference_point': output_file})
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    embed()
-    exit()
+
     # Step 3: Calculate distance matrix >>>>>>>>>>>>>>>>>
     print("\nCalculate distance matrix...")
     output_folder = os.path.join(proc_out_folder, '3_distance_matrix')
     if (record['step3'] & output_proc):
         print("check record")
         for gp in df_group['group_id'].unique():
-            file_name = f'group{gp}_DIST'
+            file_name = f'group{gp}_DIST.csv'
             assert file_name in os.listdir(output_folder), f'load faile: file {file_name} not found'
     else:
-        distance_dt = get_distance_table(
+        get_distance_table(
             df_refer_point, df_tran, 
             tran_coor_col=args['column']['transaction']['coordinate'],
             target_coor_cols=args['column']['procces']['target_coordinate_cols'],
             group_id_col=args['column']['procces']['target_id_col'],
             tran_id_col=args['column']['transaction']['land_id'],
             max_distance=args['method']['3_max_distance'],
-            output_folder=output_folder,
-            output_proc=output_proc
+            output_folder=output_folder
         )
         args = update_config(args, config_path, 'procces_record', {'step3': True})
+        args = update_config(args, config_path, 'output_files', {'3_distance_matrix': {output_folder: os.listdir(output_folder)}})
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     embed()
     exit()
@@ -230,18 +229,19 @@ def main():
     if (record['step4'] & output_proc):
         print("check record")
     else:
-        result_df, fillna_result = get_customized_index(
-            distance_mat_folder, 
-            df_tran, 
-            method, 
-            target_cols, 
-            target_value_col, 
-            start_date, 
-            end_date, 
-            time_freq, 
-            dist_threshold
-        )
+        # result_df, fillna_result = get_customized_index(
+        #     distance_mat_folder=output_file, 
+        #     df_tran, 
+        #     method, 
+        #     target_cols, 
+        #     target_value_col, 
+        #     start_date, 
+        #     end_date, 
+        #     time_freq, 
+        #     dist_threshold
+        # )
         args = update_config(args, config_path, 'procces_record', {'step4': True})
+        args = update_config(args, config_path, 'output_files', {'4_regional_indicators': output_file})
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     # Step 5: Create training data >>>>>>>>>>>>>>>
