@@ -60,7 +60,7 @@ def get_distance_table(df_target:pd.DataFrame, df_tran:pd.DataFrame, tran_coor_c
         result.to_csv(os.path.join(output_folder, f'group{gp_id}_DIST.csv'), index=False)
 
 # Step 4: Calculate customized index ===================================================================
-def get_customized_index(distance_mat_folder:str, df_tran:pd.DataFrame, method:str, target_cols:list, target_value_col:str,
+def get_customized_index(distance_mat_folder:str, df_tran:pd.DataFrame, method:str, target_cols:list, target_value_col:str, id_col:str,
         start_date:str, end_date:str, time_freq:str, dist_threshold:int):
 
     regional_index = RegionalIndex(start_date, end_date, time_freq, dist_threshold)
@@ -72,12 +72,13 @@ def get_customized_index(distance_mat_folder:str, df_tran:pd.DataFrame, method:s
     result_df = pd.DataFrame()
     gp_table = regional_index.date_table.copy()
     for gp_file, col in tqdm.tqdm(task_ls):
-        embed()
-        exit()
         if gp_file != pre_gp_file:
             df_distance = pd.read_csv(os.path.join(distance_mat_folder, gp_file), usecols=['land_id'] + target_cols)
 
-        result, record = regional_index.get_index(df_distance, df_tran, method, target_value_col, col)
+        result, record = regional_index.get_index(
+            df_distance, df_tran, 
+            method=method, target_value_col=target_value_col, 
+            dist_value_col=col, id_col=id_col)
 
         fill_result_dt_ls.append(record)
 
@@ -241,7 +242,8 @@ def main():
                     distance_mat_folder=args['output_files']['3_distance_matrix']['folder'], 
                     df_tran=df_tran, 
                     method=method, 
-                    target_cols=args['column']['procces']['target_coordinate_cols'], 
+                    target_cols=[i + '_DIST' for i in args['column']['procces']['target_coordinate_cols']],
+                    id_col=args['column']['transaction']['land_id'], 
                     target_value_col=args['column']['transaction']['value'], 
                     start_date=args['method']['4_index_start_date'], 
                     end_date=args['method']['4_index_end_date'], 
