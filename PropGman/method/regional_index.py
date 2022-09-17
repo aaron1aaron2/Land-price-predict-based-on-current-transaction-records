@@ -7,7 +7,6 @@ Create Date: 2022.09.13
 Last Update: 2022.09.13
 Describe: 計算區域性指標
 """
-from site import USER_BASE
 import pandas as pd
 
 class RegionalIndex:
@@ -55,14 +54,18 @@ class RegionalIndex:
 
         return f_b_avg_fill, record
 
-    def get_index(self, df_distance:pd.DataFrame, df_tran:pd.DataFrame, method:str, target_value_col:str, col:str):
-        id_select = df_distance.loc[df_distance[col] <= self.dist_threshold, 'land_id'].to_list()
-        df_tran_select = df_tran[df_tran['land_id'].isin(id_select)].copy()
+    def get_index(self, df_distance:pd.DataFrame, df_tran:pd.DataFrame, method:str, target_value_col:str, dist_value_col:str, id_col:str):
+        id_select = df_distance.loc[df_distance[dist_value_col] <= self.dist_threshold, id_col].to_list()
+        df_tran_select = df_tran[df_tran[id_col].astype(int).isin(id_select)].copy()
+
+        df_tran_select[target_value_col] = df_tran_select[target_value_col].astype(float)
+        df_tran_select['year'] = df_tran_select['year'].astype(int)
+        df_tran_select['month'] = df_tran_select['month'].astype(int)
 
         if method=='mean':
             month_mean = df_tran_select.groupby(['year', 'month'])[target_value_col].mean()
         elif method=='count':
-            df_tran_select.groupby(['year', 'month'])[target_value_col].count()
+            month_mean = df_tran_select.groupby(['year', 'month'])[target_value_col].count()
         else:
             month_mean = df_tran_select.groupby(['year', 'month'])[target_value_col].mean()
 
