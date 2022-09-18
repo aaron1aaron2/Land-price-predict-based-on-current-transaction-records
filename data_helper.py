@@ -7,6 +7,7 @@ Create Date: 2022.09.06
 Last Update: 2022.09.16
 Describe: 集合所有方法步驟，可以一次性的透過參數設定整理訓練所需資料。
 """
+import re
 import os
 import tqdm
 
@@ -71,7 +72,10 @@ def get_customized_index(distance_mat_folder:str, df_tran:pd.DataFrame, method:s
     pre_gp_file = ''
     result_df = pd.DataFrame()
     gp_table = regional_index.date_table.copy()
+
     for gp_file, col in tqdm.tqdm(task_ls):
+        gp = re.search('group(\d+)', gp_file)
+        gp = int(gp[1]) if gp != None else ''
         if gp_file != pre_gp_file:
             df_distance = pd.read_csv(os.path.join(distance_mat_folder, gp_file), usecols=['land_id'] + target_cols)
 
@@ -80,17 +84,23 @@ def get_customized_index(distance_mat_folder:str, df_tran:pd.DataFrame, method:s
             method=method, target_value_col=target_value_col, 
             dist_value_col=col, id_col=id_col)
 
+        record.update({'file': gp_file})
         fill_result_dt_ls.append(record)
 
         if (gp_file == pre_gp_file) | (pre_gp_file==''):
             gp_table[col] = result
             if all([i in gp_table.columns for i in target_cols]):
+                gp_table['group'] = gp
                 result_df = result_df.append(gp_table)
         else:
             gp_table = regional_index.date_table.copy()
             gp_table[col] = result
 
-        return result_df, pd.DataFrame(fill_result_dt_ls)
+    result_df.rename(columns={
+            i:i.replace('_DIST','') for i in target_cols
+        }, inplace=True)
+
+    return result_df, pd.DataFrame(fill_result_dt_ls)
 
 # Step 5: Create training data ===============================================================
 def train_data(df, value_col, date_col, time_col, output_folder, with_csv):
@@ -233,9 +243,10 @@ def main():
     if (record['step4'] & output_proc):
         print("check record")
         for method in tqdm.tqdm(args['method']['4_index_method']):
-            assert f'{method}.csv' in os.listdir(output_folder), f'load faile: file {method}.csv not found'
+            assert f'{method}.csv' in os.listdir(output_folder), f'file {method}.csv not found at {output_folder}'
     else:
-        for method in tqdm.tqdm(args['method']['4_index_method']):
+        for method in args['method']['4_index_method']:
+            print(f'method - {method}')
             output_file = os.path.join(output_folder, f'{method}.csv')
             if not os.path.exists(output_file):
                 result_df, fillna_result = get_customized_index(
@@ -253,11 +264,14 @@ def main():
                 if output_proc:
                     result_df.to_csv(output_file, index=False)
                     fillna_result.to_csv(output_file.replace('.csv', '_fillna.csv'), index=False)
+            else:
+                print(f'file exist: {output_file}')
 
         args = update_config(args, config_path, 'procces_record', {'step4': True})
-        args = update_config(args, config_path, 'output_files', {'3_distance_matrix': {'folder':output_folder, 'files':os.listdir(output_folder)}})
+        args = update_config(args, config_path, 'output_files', {'4_regional_indicators': {'folder':output_folder, 'files':os.listdir(output_folder)}})
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+    exit()
 
     # Step 5: Create training data >>>>>>>>>>>>>>>
     print("\nCreate training data...")
