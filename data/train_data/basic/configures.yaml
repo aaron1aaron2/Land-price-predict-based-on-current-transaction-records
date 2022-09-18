@@ -43,7 +43,7 @@ procces_record:
   step1: true
   step2: true
   step3: true
-  step4: false
+  step4: true
   step5: false
   step6: false
 output_files:
@@ -63,3 +63,8 @@ output_files:
     - group7_DIST.csv
     - group8_DIST.csv
     - group9_DIST.csv
+  4_regional_indicators:
+    folder: data/train_data/basic/procces\4_regional_indicators
+    files:
+    - mean.csv
+    - mean_fillna.csv
