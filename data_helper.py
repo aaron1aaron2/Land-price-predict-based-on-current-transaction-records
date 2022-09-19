@@ -106,7 +106,7 @@ def get_customized_index(distance_mat_folder:str, df_tran:pd.DataFrame, method:s
     return result_df, pd.DataFrame(fill_result_dt_ls)
 
 # Step 5: Create training data ===============================================================
-def get_train_data(df:pd.DataFrame, datetime_col:str, cus_format:str, target_value_cols:list) -> pd.DataFrame:
+def get_train_data(df:pd.DataFrame, id_dt:dict, datetime_col:str, cus_format:str, target_value_cols:list) -> pd.DataFrame:
     embed()
     exit()
 
@@ -268,7 +268,6 @@ def main():
         args = update_config(args, config_path, 'output_files', {'4_regional_index': {'folder':output_folder, 'files':os.listdir(output_folder)}})
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-    exit()
 
     # Step 5: Create training data >>>>>>>>>>>>>>>
     print("\nCreate training data...")
@@ -279,18 +278,25 @@ def main():
         for method in args['method']['4_index_method']:
             assert f'{method}.csv' in os.listdir(output_folder), f'file {method}.csv not found at {output_folder}'
     else:
+        id_table = pd.DataFrame(
+                    [(i, col) for i, col in enumerate(args['column']['procces']['target_coordinate_cols'])],
+                    columns=['id', 'columns']
+            )
         for method in tqdm.tqdm(args['method']['4_index_method']):
             df_index = pd.read_csv(os.path.join(
                         args['output_files']['4_regional_index']['folder'], 
                         f'{method}.csv'
                     ))
-            # get_train_data(
-            #     df=df_index, 
-            #     target_value_col=args['column']['procces']['target_coordinate_cols'], 
-            #     datetime_col, 
-            #     cus_format, 
-            #     target_value_cols
-            # )
+            df_index['datetime'] = df_index['year'].astype(str) + '-' + df_index['month'].astype(str) 
+
+
+            result = get_train_data(
+                df=df_index, 
+                datetime_col='datetime', 
+                cus_format='%Y-%m', # %Y 年、 %m 月、%d 日、%H 時、%M 分、%S 秒 
+                target_value_cols=args['column']['procces']['target_coordinate_cols'], 
+                id_dt={col:i for i, col in id_table.values}
+            )
 
         args = update_config(args, config_path, 'procces_record', {'step5': True})
         args = update_config(args, config_path, 'output_files', {'5_train_data': {'folder':output_folder, 'files':os.listdir(output_folder)}})
