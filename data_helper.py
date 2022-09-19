@@ -4,7 +4,7 @@ Author: 何彥南 (yen-nan ho)
 Github: https://github.com/aaron1aaron2
 Email: aaron1aaron2@gmail.com
 Create Date: 2022.09.06
-Last Update: 2022.09.16
+Last Update: 2022.09.19
 Describe: 集合所有方法步驟，可以一次性的透過參數設定整理訓練所需資料。
 """
 import re
@@ -66,6 +66,7 @@ def get_customized_index(distance_mat_folder:str, df_tran:pd.DataFrame, method:s
 
     regional_index = RegionalIndex(start_date, end_date, time_freq, dist_threshold)
 
+    # 為了看進度，不使用雙 for
     task_ls = [(gp_file, col) for gp_file in os.listdir(distance_mat_folder) for col in target_cols]
     fill_result_dt_ls = []
 
@@ -76,6 +77,7 @@ def get_customized_index(distance_mat_folder:str, df_tran:pd.DataFrame, method:s
     for gp_file, col in tqdm.tqdm(task_ls):
         gp = re.search('group(\d+)', gp_file)
         gp = int(gp[1]) if gp != None else ''
+
         if gp_file != pre_gp_file:
             df_distance = pd.read_csv(os.path.join(distance_mat_folder, gp_file), usecols=['land_id'] + target_cols)
 
@@ -87,6 +89,7 @@ def get_customized_index(distance_mat_folder:str, df_tran:pd.DataFrame, method:s
         record.update({'file': gp_file})
         fill_result_dt_ls.append(record)
 
+        # 控制: 當每個 group 的目標點 & 參考點結束時 
         if (gp_file == pre_gp_file) | (pre_gp_file==''):
             gp_table[col] = result
             if all([i in gp_table.columns for i in target_cols]):
@@ -119,9 +122,6 @@ def train_data(df, value_col, date_col, time_col, output_folder, with_csv):
 # Step 6: generate SE data ===================================================================
 
 
-
-
-# utils ======================================================================================
 
 # main process =================================================
 def main():
@@ -242,7 +242,7 @@ def main():
     build_folder(output_folder)
     if (record['step4'] & output_proc):
         print("check record")
-        for method in tqdm.tqdm(args['method']['4_index_method']):
+        for method in args['method']['4_index_method']:
             assert f'{method}.csv' in os.listdir(output_folder), f'file {method}.csv not found at {output_folder}'
     else:
         for method in args['method']['4_index_method']:
@@ -271,22 +271,39 @@ def main():
         args = update_config(args, config_path, 'output_files', {'4_regional_indicators': {'folder':output_folder, 'files':os.listdir(output_folder)}})
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-    exit()
 
     # Step 5: Create training data >>>>>>>>>>>>>>>
     print("\nCreate training data...")
+    output_folder = os.path.join(proc_out_folder, '5_train_data')
+    build_folder(output_folder)
+    if (record['step5'] & output_proc):
+        print("check record")
+        for method in tqdm.tqdm(args['method']['4_index_method']):
+            assert f'{method}.csv' in os.listdir(output_folder), f'file {method}.csv not found at {output_folder}'
+    else:
 
-    print(f'Successful output data.h5 to ({output_path})')
-    args['procces_record']['step5'] = True
-    save_config(args, config_path)
+
+        args = update_config(args, config_path, 'procces_record', {'step5': True})
+        args = update_config(args, config_path, 'output_files', {'5_train_data': {'folder':output_folder, 'files':os.listdir(output_folder)}})
+
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
     # Step 6: Generate SE data >>>>>>>>>>>>>>>>>>>
     print("\nGenerate SE data...")
+    print("\nCreate training data...")
+    output_folder = os.path.join(proc_out_folder, '5_train_data')
+    build_folder(output_folder)
+    if (record['step5'] & output_proc):
+        print("check record")
+        for method in tqdm.tqdm(args['method']['4_index_method']):
+            assert f'{method}.csv' in os.listdir(output_folder), f'file {method}.csv not found at {output_folder}'
+    else:
 
-    args['procces_record']['step6'] = True
-    save_config(args, config_path)
+
+        args = update_config(args, config_path, 'procces_record', {'step5': True})
+        args = update_config(args, config_path, 'output_files', {'5_train_data': {'folder':output_folder, 'files':os.listdir(output_folder)}})
+
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
