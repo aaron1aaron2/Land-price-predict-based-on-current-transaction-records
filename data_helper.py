@@ -106,8 +106,7 @@ def get_customized_index(distance_mat_folder:str, df_tran:pd.DataFrame, method:s
     return result_df, pd.DataFrame(fill_result_dt_ls)
 
 # Step 5: Create training data ===============================================================
-def train_data(df, value_col, date_col, time_col, output_folder, with_csv):
-    col_reads = [value_col, date_col, time_col]
+def train_data(df:pd.DataFrame, value_col:str, date_col:str, time_col:str):
     df['new_id'] = df.index
     # 轉換成 datetime 格式
     df['datetime'] = df[date_col] + '.' + df[time_col]
@@ -115,10 +114,8 @@ def train_data(df, value_col, date_col, time_col, output_folder, with_csv):
 
     # 將表扭曲成 row(datetime), columns(id), value
     df_pvt = df.pivot(index='datetime', columns='new_id', values=value_col)
-    df_pvt.to_hdf(os.path.join(output_folder, 'data.h5'), key='data', mode='w')
-    if with_csv:
-        df_pvt.to_csv(os.path.join(output_folder, 'data.csv'))
 
+    return df_pvt
 # Step 6: generate SE data ===================================================================
 
 
@@ -278,14 +275,23 @@ def main():
     build_folder(output_folder)
     if (record['step5'] & output_proc):
         print("check record")
-        for method in tqdm.tqdm(args['method']['4_index_method']):
+        for method in args['method']['4_index_method']:
             assert f'{method}.csv' in os.listdir(output_folder), f'file {method}.csv not found at {output_folder}'
     else:
-
+        for method in tqdm.tqdm(args['method']['4_index_method']):
+            df_index = pd.read_csv(os.path.join(
+                        args['output_files']['4_regional_indicators']['folder'], 
+                        f'{method}.csv'
+                    ))
+            train_data(
+                df=df_index, 
+                value_col, 
+                date_col, 
+                time_col
+            )
 
         args = update_config(args, config_path, 'procces_record', {'step5': True})
         args = update_config(args, config_path, 'output_files', {'5_train_data': {'folder':output_folder, 'files':os.listdir(output_folder)}})
-
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
