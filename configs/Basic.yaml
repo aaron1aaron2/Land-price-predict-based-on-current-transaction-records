@@ -54,7 +54,7 @@ method:
 
 # 流程控制
 control:
-  output_proc_file: !!bool true # 是否要輸出過程中產生的資料，可用來恢復進度
+  output_proc_file: !!bool true # 是否要輸出過程中產生的資料，重要資料還是會輸出。
 
 # GMAN 所需的 spatial embedding (這部分使用 node2vec，edge 值使用直線距離)
 SE:
