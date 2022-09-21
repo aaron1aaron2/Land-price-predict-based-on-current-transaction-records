@@ -4,6 +4,7 @@ pandas
 numpy
 pyyaml
 scikit-learn
+tables
 
 # Visualization
 matplotlib>=3.4.2
