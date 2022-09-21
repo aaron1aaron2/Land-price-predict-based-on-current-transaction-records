@@ -107,14 +107,15 @@ def get_customized_index(distance_mat_folder:str, df_tran:pd.DataFrame, method:s
 
 # Step 5: Create training data ===============================================================
 def get_train_data(df:pd.DataFrame, id_dt:dict, datetime_col:str, cus_format:str, target_value_cols:list) -> pd.DataFrame:
-    embed()
-    exit()
-
     # 轉換成 datetime 格式
-    df['datetime'] = df[date_col] + '.' + df[time_col]
-    df['datetime'] = pd.to_datetime(df['datetime'], format=r'%Y.%m.%d.%H%M%S')  
+    df[datetime_col] = pd.to_datetime(df[datetime_col], format=cus_format)  
+    df = df[[datetime_col] + target_value_cols]
 
-    return df_pvt
+    df.set_index(datetime_col, inplace=True)
+
+    df.rename(columns=id_dt, inplace=True)
+
+    return df
 
 # Step 6: generate SE data ===================================================================
 
@@ -258,9 +259,8 @@ def main():
                     time_freq=args['method']['4_index_time_freq'], 
                     dist_threshold=args['method']['4_index_distance_threshold']
                 )
-                if output_proc:
-                    result_df.to_csv(output_file, index=False)
-                    fillna_result.to_csv(output_file.replace('.csv', '_fillna.csv'), index=False)
+                result_df.to_csv(output_file, index=False)
+                fillna_result.to_csv(output_file.replace('.csv', '_fillna.csv'), index=False)
             else:
                 print(f'file exist: {output_file}')
 
@@ -282,6 +282,7 @@ def main():
                     [(i, col) for i, col in enumerate(args['column']['procces']['target_coordinate_cols'])],
                     columns=['id', 'columns']
             )
+        id_table.to_csv()
         for method in tqdm.tqdm(args['method']['4_index_method']):
             df_index = pd.read_csv(os.path.join(
                         args['output_files']['4_regional_index']['folder'], 
@@ -289,14 +290,16 @@ def main():
                     ))
             df_index['datetime'] = df_index['year'].astype(str) + '-' + df_index['month'].astype(str) 
 
+            for gp in df_index['group'].unique():
+                result = get_train_data(
+                    df=df_index[df_index['group']==gp], 
+                    datetime_col='datetime', 
+                    cus_format='%Y-%m', # %Y 年、 %m 月、%d 日、%H 時、%M 分、%S 秒 
+                    target_value_cols=args['column']['procces']['target_coordinate_cols'], 
+                    id_dt={col:i for i, col in id_table.values}
+                )
+                result.to_csv(os.path.join(output_folder, f'{method}_group{gp}.csv'), index=False)
 
-            result = get_train_data(
-                df=df_index, 
-                datetime_col='datetime', 
-                cus_format='%Y-%m', # %Y 年、 %m 月、%d 日、%H 時、%M 分、%S 秒 
-                target_value_cols=args['column']['procces']['target_coordinate_cols'], 
-                id_dt={col:i for i, col in id_table.values}
-            )
 
         args = update_config(args, config_path, 'procces_record', {'step5': True})
         args = update_config(args, config_path, 'output_files', {'5_train_data': {'folder':output_folder, 'files':os.listdir(output_folder)}})
