@@ -271,7 +271,7 @@ def main():
 
     # Step 5: Create training data >>>>>>>>>>>>>>>
     print("\nCreate training data...")
-    output_folder = os.path.join(proc_out_folder, '5_train_data')
+    output_folder = os.path.join(main_out_folder, 'train_data')
     build_folder(output_folder)
     if (record['step5'] & output_proc):
         print("check record")
@@ -282,7 +282,7 @@ def main():
                     [(i, col) for i, col in enumerate(args['column']['procces']['target_coordinate_cols'])],
                     columns=['id', 'columns']
             )
-        id_table.to_csv()
+        id_table.to_csv(os.path.join(output_folder, 'id_table.csv'), index=False)
         for method in tqdm.tqdm(args['method']['4_index_method']):
             df_index = pd.read_csv(os.path.join(
                         args['output_files']['4_regional_index']['folder'], 
@@ -298,28 +298,27 @@ def main():
                     target_value_cols=args['column']['procces']['target_coordinate_cols'], 
                     id_dt={col:i for i, col in id_table.values}
                 )
-                result.to_csv(os.path.join(output_folder, f'{method}_group{gp}.csv'), index=False)
-
+                result.to_hdf(os.path.join(output_folder, f'{method}_group{gp}.h5'), key='data', mode='w')
 
         args = update_config(args, config_path, 'procces_record', {'step5': True})
         args = update_config(args, config_path, 'output_files', {'5_train_data': {'folder':output_folder, 'files':os.listdir(output_folder)}})
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-
+    exit()
     # Step 6: Generate SE data >>>>>>>>>>>>>>>>>>>
     print("\nGenerate SE data...")
     print("\nCreate training data...")
-    output_folder = os.path.join(proc_out_folder, '5_train_data')
+    output_folder = os.path.join(main_out_folder, 'SE_data')
     build_folder(output_folder)
-    if (record['step5'] & output_proc):
+    if (record['step6'] & output_proc):
         print("check record")
         for method in tqdm.tqdm(args['method']['4_index_method']):
             assert f'{method}.csv' in os.listdir(output_folder), f'file {method}.csv not found at {output_folder}'
     else:
 
 
-        args = update_config(args, config_path, 'procces_record', {'step5': True})
-        args = update_config(args, config_path, 'output_files', {'5_train_data': {'folder':output_folder, 'files':os.listdir(output_folder)}})
+        args = update_config(args, config_path, 'procces_record', {'step6': True})
+        args = update_config(args, config_path, 'output_files', {'6_SE_data': {'folder':output_folder, 'files':os.listdir(output_folder)}})
 
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
