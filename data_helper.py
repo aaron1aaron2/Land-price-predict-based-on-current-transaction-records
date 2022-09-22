@@ -240,8 +240,8 @@ def main():
     build_folder(output_folder)
     if (record['step4'] & output_proc):
         print("check record")
-        for method in args['method']['4_index_method']:
-            assert f'{method}.csv' in os.listdir(output_folder), f'file {method}.csv not found at {output_folder}'
+        for file in args['output_files']['4_regional_index']['files']:
+            assert file in os.listdir(output_folder), f'file {file} not found at {output_folder}'
     else:
         for method in args['method']['4_index_method']:
             print(f'method - {method}')
@@ -275,8 +275,8 @@ def main():
     build_folder(output_folder)
     if (record['step5'] & output_proc):
         print("check record")
-        for method in args['method']['4_index_method']:
-            assert f'{method}.csv' in os.listdir(output_folder), f'file {method}.csv not found at {output_folder}'
+        for file in args['output_files']['5_train_data']['files']:
+            assert file in os.listdir(output_folder), f'file {file} not found at {output_folder}'
     else:
         id_table = pd.DataFrame(
                     [(i, col) for i, col in enumerate(args['column']['procces']['target_coordinate_cols'])],
