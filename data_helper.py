@@ -19,6 +19,7 @@ import pandas as pd
 from pandas.core.common import SettingWithCopyWarning
 
 from PropGman.utils import *
+from PropGman.spatial_embedding import *
 
 from PropGman.method import reference_point
 from PropGman.method.land_group import LandGroup
@@ -118,7 +119,82 @@ def get_train_data(df:pd.DataFrame, id_dt:dict, datetime_col:str, cus_format:str
     return df
 
 # Step 6: generate SE data ===================================================================
+def get_SE():
+    Adj_file = os.path.join(args.output_folder, 'Adj.txt')
+    SE_file = os.path.join(args.output_folder, 'SE.txt')
 
+    # SE存在時就結束
+    if os.path.exists(SE_file):
+        print("SE_file is already build at ({})".format(SE_file))
+        exit()
+
+    # ADJ 資料
+    if not os.path.exists(Adj_file):
+        print("building Adj_file at ({})".format(Adj_file))
+
+        # 準備資料
+        if args.group != None:
+            if args.coordinate_col != None:
+                df = pd.read_csv(args.file_path, usecols=[args.id_col, args.coordinate_col, args.group_col], dtype=str)
+            else:
+                args.coordinate_col = 'coordinate'
+                df = pd.read_csv(args.file_path, usecols=[args.id_col, args.longitude_col, args.latitude_col, args.group_col], dtype=str)
+                df[args.coordinate_col] = df[args.latitude_col].str.strip() + ',' + df[args.longitude_col].str.strip()
+                df.drop([args.longitude_col, args.latitude_col], inplace=True, axis=1)
+                
+            group_use_ls = args.group.split(',')
+            df = df[df[args.group_col].isin(group_use_ls)]
+        else:
+            if args.coordinate_col != None:
+                df = pd.read_csv(args.file_path, usecols=[args.id_col, args.coordinate_col], dtype=str)
+            else:
+                args.coordinate_col = 'coordinate'
+                df = pd.read_csv(args.file_path, usecols=[args.id_col, args.longitude_col, args.latitude_col], dtype=str)
+                df[args.coordinate_col] = df[args.latitude_col].str.strip() + ',' + df[args.longitude_col].str.strip()
+                df.drop([args.longitude_col, args.latitude_col], inplace=True, axis=1)
+
+        df = df[~df[args.coordinate_col].isna()]
+        
+        # 建立區域內連結
+        print("number of nodes: {}".format(df.shape[0]))
+
+        if args.use_group: 
+            df_AB = get_one_way_edge(df, group=args.group_col, coor_col=args.coordinate_col, id_col=args.id_col)
+        else:
+            df_AB = get_one_way_edge(df, group=None, coor_col=args.coordinate_col, id_col=args.id_col)
+
+        # 獲取各 edge 關係評估值
+        print("shape of one way edge: {}".format(df_AB.shape))
+        if args.distance_method ==  'linear distance':
+            df_AB = get_linear_distance(df_AB) # 786 |308504 |2min 7s
+        else:
+            assert False, 'please set the parameter - `distance_method`'
+
+        df_AB.to_csv(os.path.join(args.output_folder, 'one_way_edge_table_LD.csv'), index=False)
+
+        # 建立雙向 edge 和自己到自己 (可直接轉成 disatnce martix)
+        df_2W = get_two_way_with_self(df, df_AB, coor_col=args.coordinate_col, id_col=args.id_col)
+        df_2W.to_csv(os.path.join(args.output_folder, 'two_way_edge_table_LD.csv'), index=False)
+
+        # 計算 adj 值 (基於 GMAN 論文上的算法，越小關係越大)
+        df_2W_adj = get_adj_value(df_2W, threshold=args.adj_threshold)
+        df_2W_adj.to_csv(os.path.join(args.output_folder, 'two_way_edge_table_LD(adj).csv'), index=False)
+
+        df_2W_adj[['start_no', 'end_no', 'adj']].to_csv(Adj_file, sep=' ', index=False, header=False)
+
+    print("building SE_file at ({})".format(SE_file))
+
+    # 訓練 Note2Vec 資料 (使用原始 GMAN 作者的程式碼 -> https://github.com/zhengchuanpan/GMAN/tree/master/PeMS/node2vec)
+    train_node2vec = generateSE.SEDataHelper(
+            is_directed=args.is_directed, p=args.p, q=args.q, 
+            num_walks=args.num_walks, walk_length=args.walk_length,
+            dimensions=args.dimensions, window_size=args.window_size,
+            itertime=args.itertime,
+            Adj_file=Adj_file,
+            SE_file=SE_file
+        )
+
+    train_node2vec.run()
 
 
 # main process =================================================
@@ -283,7 +359,7 @@ def main():
                     columns=['id', 'columns']
             )
         id_table.to_csv(os.path.join(output_folder, 'id_table.csv'), index=False)
-        for method in tqdm.tqdm(args['method']['4_index_method']):
+        for method in args['method']['4_index_method']:
             df_index = pd.read_csv(os.path.join(
                         args['output_files']['4_regional_index']['folder'], 
                         f'{method}.csv'
@@ -315,6 +391,7 @@ def main():
         for method in tqdm.tqdm(args['method']['4_index_method']):
             assert f'{method}.csv' in os.listdir(output_folder), f'file {method}.csv not found at {output_folder}'
     else:
+
 
 
         args = update_config(args, config_path, 'procces_record', {'step6': True})
