@@ -41,7 +41,6 @@ def get_args():
 
     return args
 
-# Step 3: Calculate distance matrix ==========================================================
 def get_distance_table(
     df_target:pd.DataFrame, 
     df_tran:pd.DataFrame, 
@@ -71,7 +70,6 @@ def get_distance_table(
         
         result.to_csv(os.path.join(output_folder, f'group{gp_id}_DIST.csv'), index=False)
 
-# Step 4: Calculate customized index ===================================================================
 def get_customized_index(
     distance_mat_folder:str, 
     df_tran:pd.DataFrame, 
@@ -126,7 +124,6 @@ def get_customized_index(
 
     return result_df, pd.DataFrame(fill_result_dt_ls)
 
-# Step 5: Create training data ===============================================================
 def get_train_data(
     df:pd.DataFrame, 
     id_dt:dict, 
@@ -154,16 +151,14 @@ def get_train_data(
             SE_file=SE_file
         )
 
-# Step 6: generate SE data ===================================================================
 def get_SE(
     df:pd.DataFrame, 
     output_folder:str, 
     coordinate_col:str, 
     id_col:str, 
     group_col:str, 
-    use_group:bool, 
     distance_method:str, 
-    adj_threshold:int,
+    adj_threshold:float,
     is_directed:bool,
     p:float,
     q:float,
@@ -192,10 +187,8 @@ def get_SE(
         # 建立區域內連結
         print("number of nodes: {}".format(df.shape[0]))
 
-        if use_group: 
-            df_AB = get_one_way_edge(df, group=group_col, coor_col=coordinate_col, id_col=id_col)
-        else:
-            df_AB = get_one_way_edge(df, group=None, coor_col=coordinate_col, id_col=id_col)
+
+        df_AB = get_one_way_edge(df, group=group_col, coor_col=coordinate_col, id_col=id_col)
 
         # 獲取各 edge 關係評估值
         print("shape of one way edge: {}".format(df_AB.shape))
@@ -414,7 +407,7 @@ def main():
         args = update_config(args, config_path, 'output_files', {'5_train_data': {'folder':output_folder, 'files':os.listdir(output_folder)}})
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-    exit()
+
     # Step 6: Generate SE data >>>>>>>>>>>>>>>>>>>
     print("\nGenerate SE data...")
     print("\nCreate training data...")
@@ -422,11 +415,37 @@ def main():
     build_folder(output_folder)
     if (record['step6'] & output_proc):
         print("check record")
-        for method in tqdm.tqdm(args['method']['4_index_method']):
-            assert f'{method}.csv' in os.listdir(output_folder), f'file {method}.csv not found at {output_folder}'
+        for file in args['output_files']['5_train_data']['files']:
+            assert file in os.listdir(output_folder), f'file {file} not found at {output_folder}'
     else:
+        gp_col = args['column']['procces']['target_id_col']
+        target_point_cols = args['column']['procces']['target_coordinate_cols']
+        group_table = df_refer_point[[gp_col] + target_point_cols].drop_duplicates()
+        group_table = group_table.melt(id_vars=gp_col, value_vars=target_point_cols,
+                            var_name='point_name', value_name='coordinate') 
 
-
+        for gp in tqdm.tqdm(group_table[gp_col].unique()):
+            gp_output_folder = os.path.join(output_folder, f'group{gp}')
+            build_folder(gp_output_folder)
+            df = group_table[group_table[gp_col]==gp]
+            df['id'] = df.reset_index().index
+            get_SE(
+                df=df, 
+                output_folder=gp_output_folder, 
+                coordinate_col='coordinate', 
+                id_col='id', 
+                group_col=None, 
+                distance_method=args['method']['6_distance_method'], 
+                adj_threshold=args['method']['6_adj_threshold'],
+                is_directed=args['method']['6_is_directed'],
+                p=args['method']['6_p'],
+                q=args['method']['6_q'],
+                num_walks=args['method']['6_num_walks'], 
+                walk_length=args['method']['6_walk_length'],
+                dimensions=args['method']['6_dimensions'], 
+                window_size=args['method']['6_window_size'],
+                itertime=args['method']['6_itertime'],
+            )
 
         args = update_config(args, config_path, 'procces_record', {'step6': True})
         args = update_config(args, config_path, 'output_files', {'6_SE_data': {'folder':output_folder, 'files':os.listdir(output_folder)}})
