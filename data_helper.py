@@ -14,6 +14,7 @@ import tqdm
 import warnings
 import argparse
 # import importlib
+from typing import Tuple
 
 import pandas as pd
 from pandas.core.common import SettingWithCopyWarning
@@ -41,8 +42,17 @@ def get_args():
     return args
 
 # Step 3: Calculate distance matrix ==========================================================
-def get_distance_table(df_target:pd.DataFrame, df_tran:pd.DataFrame, tran_coor_col:str, target_coor_cols:list,
-            tran_id_col:str, group_id_col:str, output_folder:str, max_distance:int) -> list:
+def get_distance_table(
+    df_target:pd.DataFrame, 
+    df_tran:pd.DataFrame, 
+    tran_coor_col:str,
+    target_coor_cols:list,
+    tran_id_col:str, 
+    group_id_col:str, 
+    output_folder:str, 
+    max_distance:int
+) -> list:
+
     df_target = df_target[[group_id_col] + target_coor_cols].drop_duplicates()
     df_tran = df_tran[[tran_id_col, tran_coor_col]]
     for gp_id in tqdm.tqdm(df_target[group_id_col].to_list()):
@@ -62,8 +72,18 @@ def get_distance_table(df_target:pd.DataFrame, df_tran:pd.DataFrame, tran_coor_c
         result.to_csv(os.path.join(output_folder, f'group{gp_id}_DIST.csv'), index=False)
 
 # Step 4: Calculate customized index ===================================================================
-def get_customized_index(distance_mat_folder:str, df_tran:pd.DataFrame, method:str, target_cols:list, target_value_col:str, id_col:str,
-        start_date:str, end_date:str, time_freq:str, dist_threshold:int):
+def get_customized_index(
+    distance_mat_folder:str, 
+    df_tran:pd.DataFrame, 
+    method:str, 
+    target_cols:list, 
+    target_value_col:str, 
+    id_col:str,
+    start_date:str, 
+    end_date:str, 
+    time_freq:str, 
+    dist_threshold:int
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
     regional_index = RegionalIndex(start_date, end_date, time_freq, dist_threshold)
 
@@ -107,7 +127,14 @@ def get_customized_index(distance_mat_folder:str, df_tran:pd.DataFrame, method:s
     return result_df, pd.DataFrame(fill_result_dt_ls)
 
 # Step 5: Create training data ===============================================================
-def get_train_data(df:pd.DataFrame, id_dt:dict, datetime_col:str, cus_format:str, target_value_cols:list) -> pd.DataFrame:
+def get_train_data(
+    df:pd.DataFrame, 
+    id_dt:dict, 
+    datetime_col:str, 
+    cus_format:str, 
+    target_value_cols:list
+) -> pd.DataFrame:
+
     # 轉換成 datetime 格式
     df[datetime_col] = pd.to_datetime(df[datetime_col], format=cus_format)  
     df = df[[datetime_col] + target_value_cols]
@@ -118,10 +145,37 @@ def get_train_data(df:pd.DataFrame, id_dt:dict, datetime_col:str, cus_format:str
 
     return df
 
+    train_node2vec = generateSE.SEDataHelper(
+            is_directed=is_directed, p=p, q=q, 
+            num_walks=num_walks, walk_length=walk_length,
+            dimensions=dimensions, window_size=window_size,
+            itertime=itertime,
+            Adj_file=Adj_file,
+            SE_file=SE_file
+        )
+
 # Step 6: generate SE data ===================================================================
-def get_SE():
-    Adj_file = os.path.join(args.output_folder, 'Adj.txt')
-    SE_file = os.path.join(args.output_folder, 'SE.txt')
+def get_SE(
+    df:pd.DataFrame, 
+    output_folder:str, 
+    coordinate_col:str, 
+    id_col:str, 
+    group_col:str, 
+    use_group:bool, 
+    distance_method:str, 
+    adj_threshold:int,
+    is_directed:bool,
+    p:float,
+    q:float,
+    num_walks:int, 
+    walk_length:int,
+    dimensions:int, 
+    window_size:int,
+    itertime:int,
+) -> None:
+
+    Adj_file = os.path.join(output_folder, 'Adj.txt')
+    SE_file = os.path.join(output_folder, 'SE.txt')
 
     # SE存在時就結束
     if os.path.exists(SE_file):
@@ -132,53 +186,33 @@ def get_SE():
     if not os.path.exists(Adj_file):
         print("building Adj_file at ({})".format(Adj_file))
 
-        # 準備資料
-        if args.group != None:
-            if args.coordinate_col != None:
-                df = pd.read_csv(args.file_path, usecols=[args.id_col, args.coordinate_col, args.group_col], dtype=str)
-            else:
-                args.coordinate_col = 'coordinate'
-                df = pd.read_csv(args.file_path, usecols=[args.id_col, args.longitude_col, args.latitude_col, args.group_col], dtype=str)
-                df[args.coordinate_col] = df[args.latitude_col].str.strip() + ',' + df[args.longitude_col].str.strip()
-                df.drop([args.longitude_col, args.latitude_col], inplace=True, axis=1)
-                
-            group_use_ls = args.group.split(',')
-            df = df[df[args.group_col].isin(group_use_ls)]
-        else:
-            if args.coordinate_col != None:
-                df = pd.read_csv(args.file_path, usecols=[args.id_col, args.coordinate_col], dtype=str)
-            else:
-                args.coordinate_col = 'coordinate'
-                df = pd.read_csv(args.file_path, usecols=[args.id_col, args.longitude_col, args.latitude_col], dtype=str)
-                df[args.coordinate_col] = df[args.latitude_col].str.strip() + ',' + df[args.longitude_col].str.strip()
-                df.drop([args.longitude_col, args.latitude_col], inplace=True, axis=1)
-
-        df = df[~df[args.coordinate_col].isna()]
+        df = df[[id_col, group_col, coordinate_col]]
+        df = df[~df[coordinate_col].isna()]
         
         # 建立區域內連結
         print("number of nodes: {}".format(df.shape[0]))
 
-        if args.use_group: 
-            df_AB = get_one_way_edge(df, group=args.group_col, coor_col=args.coordinate_col, id_col=args.id_col)
+        if use_group: 
+            df_AB = get_one_way_edge(df, group=group_col, coor_col=coordinate_col, id_col=id_col)
         else:
-            df_AB = get_one_way_edge(df, group=None, coor_col=args.coordinate_col, id_col=args.id_col)
+            df_AB = get_one_way_edge(df, group=None, coor_col=coordinate_col, id_col=id_col)
 
         # 獲取各 edge 關係評估值
         print("shape of one way edge: {}".format(df_AB.shape))
-        if args.distance_method ==  'linear distance':
+        if distance_method ==  'linear distance':
             df_AB = get_linear_distance(df_AB) # 786 |308504 |2min 7s
         else:
             assert False, 'please set the parameter - `distance_method`'
 
-        df_AB.to_csv(os.path.join(args.output_folder, 'one_way_edge_table_LD.csv'), index=False)
+        # df_AB.to_csv(os.path.join(output_folder, 'one_way_edge_table_LD.csv'), index=False)
 
         # 建立雙向 edge 和自己到自己 (可直接轉成 disatnce martix)
-        df_2W = get_two_way_with_self(df, df_AB, coor_col=args.coordinate_col, id_col=args.id_col)
-        df_2W.to_csv(os.path.join(args.output_folder, 'two_way_edge_table_LD.csv'), index=False)
+        df_2W = get_two_way_with_self(df, df_AB, coor_col=coordinate_col, id_col=id_col)
+        # df_2W.to_csv(os.path.join(output_folder, 'two_way_edge_table_LD.csv'), index=False)
 
         # 計算 adj 值 (基於 GMAN 論文上的算法，越小關係越大)
-        df_2W_adj = get_adj_value(df_2W, threshold=args.adj_threshold)
-        df_2W_adj.to_csv(os.path.join(args.output_folder, 'two_way_edge_table_LD(adj).csv'), index=False)
+        df_2W_adj = get_adj_value(df_2W, threshold=adj_threshold)
+        # df_2W_adj.to_csv(os.path.join(output_folder, 'two_way_edge_table_LD(adj).csv'), index=False)
 
         df_2W_adj[['start_no', 'end_no', 'adj']].to_csv(Adj_file, sep=' ', index=False, header=False)
 
@@ -186,10 +220,10 @@ def get_SE():
 
     # 訓練 Note2Vec 資料 (使用原始 GMAN 作者的程式碼 -> https://github.com/zhengchuanpan/GMAN/tree/master/PeMS/node2vec)
     train_node2vec = generateSE.SEDataHelper(
-            is_directed=args.is_directed, p=args.p, q=args.q, 
-            num_walks=args.num_walks, walk_length=args.walk_length,
-            dimensions=args.dimensions, window_size=args.window_size,
-            itertime=args.itertime,
+            is_directed=is_directed, p=p, q=q, 
+            num_walks=num_walks, walk_length=walk_length,
+            dimensions=dimensions, window_size=window_size,
+            itertime=itertime,
             Adj_file=Adj_file,
             SE_file=SE_file
         )
