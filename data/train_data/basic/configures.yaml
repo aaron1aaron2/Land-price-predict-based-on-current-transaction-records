@@ -32,7 +32,8 @@ method:
   3_max_distance: 10000
   4_index_method:
   - mean
-  4_index_distance_threshold: 3000
+  4_index_distance_threshold:
+  - 3000
   4_index_start_date: 2012-7
   4_index_end_date: 2022-4
   4_index_time_freq: M
@@ -52,69 +53,10 @@ SE: null
 procces_record:
   step1: true
   step2: true
-  step3: true
-  step4: true
-  step5: true
-  step6: true
+  step3: false
+  step4: false
+  step5: false
+  step6: false
 output_files:
   1_target_land_group: data/train_data/basic/procces\1_target_land_group.csv
   2_reference_point: data/train_data/basic/procces\2_reference_point.csv
-  3_distance_matrix:
-    folder: data/train_data/basic/procces\3_distance_matrix
-    files:
-    - group0_DIST.csv
-    - group10_DIST.csv
-    - group1_DIST.csv
-    - group2_DIST.csv
-    - group3_DIST.csv
-    - group4_DIST.csv
-    - group5_DIST.csv
-    - group6_DIST.csv
-    - group7_DIST.csv
-    - group8_DIST.csv
-    - group9_DIST.csv
-  4_regional_index:
-    folder: data/train_data/basic/procces\4_regional_index
-    files:
-    - mean.csv
-    - mean_fillna.csv
-  5_train_data:
-    folder: data/train_data/basic\train_data
-    files:
-    - id_table.csv
-    - mean_group0.h5
-    - mean_group1.h5
-    - mean_group10.h5
-    - mean_group2.h5
-    - mean_group3.h5
-    - mean_group4.h5
-    - mean_group5.h5
-    - mean_group6.h5
-    - mean_group7.h5
-    - mean_group8.h5
-    - mean_group9.h5
-  6_SE_data:
-    folder: data/train_data/basic\SE_data
-    files:
-    - group0/Adj.txt
-    - group0/SE.txt
-    - group1/Adj.txt
-    - group1/SE.txt
-    - group10/Adj.txt
-    - group10/SE.txt
-    - group2/Adj.txt
-    - group2/SE.txt
-    - group3/Adj.txt
-    - group3/SE.txt
-    - group4/Adj.txt
-    - group4/SE.txt
-    - group5/Adj.txt
-    - group5/SE.txt
-    - group6/Adj.txt
-    - group6/SE.txt
-    - group7/Adj.txt
-    - group7/SE.txt
-    - group8/Adj.txt
-    - group8/SE.txt
-    - group9/Adj.txt
-    - group9/SE.txt
