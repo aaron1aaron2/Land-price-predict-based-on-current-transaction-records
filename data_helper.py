@@ -341,24 +341,25 @@ def main():
     else:
         for method in args['method']['4_index_method']:
             print(f'method - {method}')
-            output_file = os.path.join(output_folder, f'{method}.csv')
-            if not os.path.exists(output_file):
-                result_df, fillna_result = get_customized_index(
-                    distance_mat_folder=args['output_files']['3_distance_matrix']['folder'], 
-                    df_tran=df_tran, 
-                    method=method, 
-                    target_cols=[i + '_DIST' for i in args['column']['procces']['target_coordinate_cols']],
-                    id_col=args['column']['transaction']['land_id'], 
-                    target_value_col=args['column']['transaction']['value'], 
-                    start_date=args['method']['4_index_start_date'], 
-                    end_date=args['method']['4_index_end_date'], 
-                    time_freq=args['method']['4_index_time_freq'], 
-                    dist_threshold=args['method']['4_index_distance_threshold']
-                )
-                result_df.to_csv(output_file, index=False)
-                fillna_result.to_csv(output_file.replace('.csv', '_fillna.csv'), index=False)
-            else:
-                print(f'file exist: {output_file}')
+            for distance in args['method']['4_index_distance_threshold']:
+                output_file = os.path.join(output_folder, f'{method}_{distance}.csv')
+                if not os.path.exists(output_file):
+                    result_df, fillna_result = get_customized_index(
+                        distance_mat_folder=args['output_files']['3_distance_matrix']['folder'], 
+                        df_tran=df_tran, 
+                        method=method, 
+                        target_cols=[i + '_DIST' for i in args['column']['procces']['target_coordinate_cols']],
+                        id_col=args['column']['transaction']['land_id'], 
+                        target_value_col=args['column']['transaction']['value'], 
+                        start_date=args['method']['4_index_start_date'], 
+                        end_date=args['method']['4_index_end_date'], 
+                        time_freq=args['method']['4_index_time_freq'], 
+                        dist_threshold=distance
+                    )
+                    result_df.to_csv(output_file, index=False)
+                    fillna_result.to_csv(output_file.replace('.csv', '_fillna.csv'), index=False)
+                else:
+                    print(f'file exist: {output_file}')
 
         args = update_config(args, config_path, 'procces_record', {'step4': True})
         args = update_config(args, config_path, 'output_files', {'4_regional_index': {'folder':output_folder, 'files':os.listdir(output_folder)}})
