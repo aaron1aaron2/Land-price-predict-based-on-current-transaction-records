@@ -381,21 +381,24 @@ def main():
             )
         id_table.to_csv(os.path.join(output_folder, 'id_table.csv'), index=False)
         for method in args['method']['4_index_method']:
-            df_index = pd.read_csv(os.path.join(
-                        args['output_files']['4_regional_index']['folder'], 
-                        f'{method}.csv'
-                    ))
-            df_index['datetime'] = df_index['year'].astype(str) + '-' + df_index['month'].astype(str) 
+            for distance in args['method']['4_index_distance_threshold']:
+                df_index = pd.read_csv(os.path.join(
+                            args['output_files']['4_regional_index']['folder'], 
+                            f'{method}_{distance}.csv'
+                        ))
+                df_index['datetime'] = df_index['year'].astype(str) + '-' + df_index['month'].astype(str) 
 
-            for gp in df_index['group'].unique():
-                result = get_train_data(
-                    df=df_index[df_index['group']==gp], 
-                    datetime_col='datetime', 
-                    cus_format='%Y-%m', # %Y 年、 %m 月、%d 日、%H 時、%M 分、%S 秒 
-                    target_value_cols=args['column']['procces']['target_coordinate_cols'], 
-                    id_dt={col:i for i, col in id_table.values}
-                )
-                result.to_hdf(os.path.join(output_folder, f'{method}_group{gp}.h5'), key='data', mode='w')
+                for gp in df_index['group'].unique():
+                    output_file = os.path.join(output_folder, f'{method}_group{gp}_dist{distance}.h5')
+                    if not os.path.exists(output_file):
+                        result = get_train_data(
+                            df=df_index[df_index['group']==gp], 
+                            datetime_col='datetime', 
+                            cus_format='%Y-%m', # %Y 年、 %m 月、%d 日、%H 時、%M 分、%S 秒 
+                            target_value_cols=args['column']['procces']['target_coordinate_cols'], 
+                            id_dt={col:i for i, col in id_table.values}
+                        )
+                        result.to_hdf(output_file, key='data', mode='w')
 
         args = update_config(args, config_path, 'procces_record', {'step5': True})
         args = update_config(args, config_path, 'output_files', {'5_train_data': {'folder':output_folder, 'files':os.listdir(output_folder)}})
@@ -420,28 +423,29 @@ def main():
 
         for gp in tqdm.tqdm(group_table[gp_col].unique()):
             gp_output_folder = os.path.join(output_folder, f'group{gp}')
-            build_folder(gp_output_folder)
 
-            df = group_table[group_table[gp_col]==gp]
-            df['id'] = df.reset_index().index
+            if not os.path.exists(os.path.join(gp_output_folder, 'SE.txt')):
+                build_folder(gp_output_folder)
+                df = group_table[group_table[gp_col]==gp]
+                df['id'] = df.reset_index().index
 
-            get_SE(
-                df=df, 
-                output_folder=gp_output_folder, 
-                coordinate_col='coordinate', 
-                id_col='id', 
-                group_col=None, 
-                distance_method=args['method']['6_distance_method'], 
-                adj_threshold=args['method']['6_adj_threshold'],
-                is_directed=args['method']['6_is_directed'],
-                p=args['method']['6_p'],
-                q=args['method']['6_q'],
-                num_walks=args['method']['6_num_walks'], 
-                walk_length=args['method']['6_walk_length'],
-                dimensions=args['method']['6_dimensions'], 
-                window_size=args['method']['6_window_size'],
-                itertime=args['method']['6_itertime'],
-            )
+                get_SE(
+                    df=df, 
+                    output_folder=gp_output_folder, 
+                    coordinate_col='coordinate', 
+                    id_col='id', 
+                    group_col=None, 
+                    distance_method=args['method']['6_distance_method'], 
+                    adj_threshold=args['method']['6_adj_threshold'],
+                    is_directed=args['method']['6_is_directed'],
+                    p=args['method']['6_p'],
+                    q=args['method']['6_q'],
+                    num_walks=args['method']['6_num_walks'], 
+                    walk_length=args['method']['6_walk_length'],
+                    dimensions=args['method']['6_dimensions'], 
+                    window_size=args['method']['6_window_size'],
+                    itertime=args['method']['6_itertime'],
+                )
 
         args = update_config(args, config_path, 'procces_record', {'step6': True})
         args = update_config(args, config_path, 'output_files', {
