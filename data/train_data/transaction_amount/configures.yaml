@@ -1,0 +1,65 @@
+config_path: configs/transaction_amount.yaml
+data:
+  transaction: data/input/transaction.csv
+  target: data/input/target.csv
+column:
+  transaction:
+    land_id: land_id
+    coordinate: tran_coordinate
+    value: 單價元平方公尺
+    date: date
+  target:
+    id: id
+    coordinate: coordinate
+  procces:
+    target_id_col: group_id
+    target_coordinate_cols:
+    - group_center
+    - refer_point1
+    - refer_point2
+    - refer_point3
+    - refer_point4
+output_folder:
+  main: data/train_data/transaction_amount
+  proc: data/train_data/transaction_amount/procces
+method:
+  1_distance_threshold: 500
+  1_group_method: DBSCAN
+  2_reference_point_func: UDLR
+  2_reference_point_distance: 3000
+  2_lat_degree_per_100_meter: 0.0009027527123486883
+  2_long_degree_per_100_meter: 0.0009902726875066093
+  3_max_distance: 10000
+  4_index_method:
+  - count
+  4_index_distance_threshold:
+  - 500
+  - 1000
+  - 2000
+  - 3000
+  4_index_start_date: 2012-7
+  4_index_end_date: 2022-4
+  4_index_time_freq: M
+  6_distance_method: linear distance
+  6_adj_threshold: 0.0
+  6_is_directed: false
+  6_p: 2
+  6_q: 1
+  6_num_walks: 100
+  6_walk_length: 80
+  6_dimensions: 64
+  6_window_size: 10
+  6_itertime: 1000
+control:
+  output_proc_file: true
+SE: null
+procces_record:
+  step1: true
+  step2: true
+  step3: false
+  step4: false
+  step5: false
+  step6: false
+output_files:
+  1_target_land_group: data/train_data/transaction_amount/procces\1_target_land_group.csv
+  2_reference_point: data/train_data/transaction_amount/procces\2_reference_point.csv
