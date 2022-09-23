@@ -1,4 +1,4 @@
-config_path: configs/transaction_amount.yaml
+config_path: configs\transaction_amount.yaml
 data:
   transaction: data/input/transaction.csv
   target: data/input/target.csv
@@ -33,13 +33,13 @@ method:
   4_index_method:
   - count
   4_index_distance_threshold:
-  - 500
   - 1000
   - 2000
   - 3000
   4_index_start_date: 2012-7
   4_index_end_date: 2022-4
   4_index_time_freq: M
+  4_fillna_method: zero
   6_distance_method: linear distance
   6_adj_threshold: 0.0
   6_is_directed: false
