@@ -4,7 +4,7 @@ Author: 何彥南 (yen-nan ho)
 Github: https://github.com/aaron1aaron2
 Email: aaron1aaron2@gmail.com
 Create Date: 2022.09.06
-Last Update: 2022.09.19
+Last Update: 2022.09.23
 Describe: 集合所有方法步驟，可以一次性的透過參數設定整理訓練所需資料。
 """
 import re
@@ -171,12 +171,15 @@ def get_SE(
     if not os.path.exists(Adj_file):
         print("building Adj_file at ({})".format(Adj_file))
 
-        df = df[[id_col, group_col, coordinate_col]]
+        if group_col==None:
+            df = df[[id_col, coordinate_col]]
+        else:
+            df = df[[id_col, group_col, coordinate_col]]
+
         df = df[~df[coordinate_col].isna()]
         
         # 建立區域內連結
         print("number of nodes: {}".format(df.shape[0]))
-
 
         df_AB = get_one_way_edge(df, group=group_col, coor_col=coordinate_col, id_col=id_col)
 
@@ -397,7 +400,7 @@ def main():
         args = update_config(args, config_path, 'output_files', {'5_train_data': {'folder':output_folder, 'files':os.listdir(output_folder)}})
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-    exit()
+
     # Step 6: Generate SE data >>>>>>>>>>>>>>>>>>>
     print("\nGenerate SE data...")
     print("\nCreate training data...")
@@ -405,8 +408,8 @@ def main():
     build_folder(output_folder)
     if (record['step6'] & output_proc):
         print("check record")
-        for file in args['output_files']['5_train_data']['files']:
-            assert file in os.listdir(output_folder), f'file {file} not found at {output_folder}'
+        for file in args['output_files']['6_SE_data']['files']:
+            assert os.path.isfile(os.path.join(output_folder, file)), f'file {file} not found at {output_folder}'
     else:
         gp_col = args['column']['procces']['target_id_col']
         target_point_cols = args['column']['procces']['target_coordinate_cols']
@@ -417,8 +420,10 @@ def main():
         for gp in tqdm.tqdm(group_table[gp_col].unique()):
             gp_output_folder = os.path.join(output_folder, f'group{gp}')
             build_folder(gp_output_folder)
+
             df = group_table[group_table[gp_col]==gp]
             df['id'] = df.reset_index().index
+
             get_SE(
                 df=df, 
                 output_folder=gp_output_folder, 
@@ -438,7 +443,12 @@ def main():
             )
 
         args = update_config(args, config_path, 'procces_record', {'step6': True})
-        args = update_config(args, config_path, 'output_files', {'6_SE_data': {'folder':output_folder, 'files':os.listdir(output_folder)}})
+        args = update_config(args, config_path, 'output_files', {
+                '6_SE_data': {
+                    'folder':output_folder, 
+                    'files':[f'{sub_f}/{f}' for sub_f in os.listdir(output_folder) 
+                            for f in os.listdir(os.path.join(output_folder, sub_f)) ]}
+            })
 
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
