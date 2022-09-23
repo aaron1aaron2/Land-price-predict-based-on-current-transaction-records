@@ -108,15 +108,14 @@ def get_customized_index(
         record.update({'file': gp_file})
         fill_result_dt_ls.append(record)
 
+        gp_table[col] = result
+
         # 控制: 當每個 group 的目標點 & 參考點結束時 
-        if (gp_file == pre_gp_file) | (pre_gp_file==''):
-            gp_table[col] = result
-            if all([i in gp_table.columns for i in target_cols]):
-                gp_table['group'] = gp
-                result_df = result_df.append(gp_table)
-        else:
+        if all([i in gp_table.columns for i in target_cols]):
+            gp_table['group'] = gp
+            result_df = result_df.append(gp_table)
+
             gp_table = regional_index.date_table.copy()
-            gp_table[col] = result
 
     result_df.rename(columns={
             i:i.replace('_DIST','') for i in target_cols
@@ -141,15 +140,6 @@ def get_train_data(
     df.rename(columns=id_dt, inplace=True)
 
     return df
-
-    train_node2vec = generateSE.SEDataHelper(
-            is_directed=is_directed, p=p, q=q, 
-            num_walks=num_walks, walk_length=walk_length,
-            dimensions=dimensions, window_size=window_size,
-            itertime=itertime,
-            Adj_file=Adj_file,
-            SE_file=SE_file
-        )
 
 def get_SE(
     df:pd.DataFrame, 
@@ -407,7 +397,7 @@ def main():
         args = update_config(args, config_path, 'output_files', {'5_train_data': {'folder':output_folder, 'files':os.listdir(output_folder)}})
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-
+    exit()
     # Step 6: Generate SE data >>>>>>>>>>>>>>>>>>>
     print("\nGenerate SE data...")
     print("\nCreate training data...")
