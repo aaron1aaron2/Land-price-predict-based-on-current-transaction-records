@@ -310,21 +310,26 @@ def main():
     print("\nCalculate distance matrix...")
     output_folder = os.path.join(proc_out_folder, '3_distance_matrix')
     build_folder(output_folder)
+
+    check_ls = [os.path.join(output_folder, f'group{gp}_DIST.csv') for gp in df_group['group_id'].unique()]
+    check_ls = [path for path in check_ls if not os.path.exists(path)]
     if (record['step3'] & output_proc):
         print("check record")
-        for gp in df_group['group_id'].unique():
-            file_name = f'group{gp}_DIST.csv'
-            assert file_name in os.listdir(output_folder), f'load faile: file {file_name} not found'
+        assert len(check_ls) == 0, f'load faile: file {check_ls} not found'
     else:
-        get_distance_table(
-            df_refer_point, df_tran, 
-            tran_coor_col=args['column']['transaction']['coordinate'],
-            target_coor_cols=args['column']['procces']['target_coordinate_cols'],
-            group_id_col=args['column']['procces']['target_id_col'],
-            tran_id_col=args['column']['transaction']['land_id'],
-            max_distance=args['method']['3_max_distance'],
-            output_folder=output_folder
-        )
+        if len(check_ls) != 0:
+            get_distance_table(
+                df_refer_point, df_tran, 
+                tran_coor_col=args['column']['transaction']['coordinate'],
+                target_coor_cols=args['column']['procces']['target_coordinate_cols'],
+                group_id_col=args['column']['procces']['target_id_col'],
+                tran_id_col=args['column']['transaction']['land_id'],
+                max_distance=args['method']['3_max_distance'],
+                output_folder=output_folder
+            )
+        else:
+            print("load record")
+
         args = update_config(args, config_path, 'procces_record', {'step3': True})
         args = update_config(args, config_path, 'output_files', {'3_distance_matrix': {'folder':output_folder, 'files':os.listdir(output_folder)}})
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
