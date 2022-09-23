@@ -45,7 +45,8 @@ method:
   # step 4 --------
   4_index_method: !!seq # 統計指標或計算方式，可在 PropGman\method\regional_index.py 底下自行擴充
     - 'mean' 
-  4_index_distance_threshold: !!int 3000 # 交易有效距離
+  4_index_distance_threshold: !!seq # 交易有效距離
+    - !!int 3000 
   4_index_start_date: !!str '2012-7'
   4_index_end_date: !!str '2022-4'
   4_index_time_freq: !!str 'M' # 'M' 月，目前只支援月
