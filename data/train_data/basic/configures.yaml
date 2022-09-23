@@ -55,7 +55,7 @@ procces_record:
   step3: true
   step4: true
   step5: true
-  step6: false
+  step6: true
 output_files:
   1_target_land_group: data/train_data/basic/procces\1_target_land_group.csv
   2_reference_point: data/train_data/basic/procces\2_reference_point.csv
@@ -93,3 +93,28 @@ output_files:
     - mean_group7.h5
     - mean_group8.h5
     - mean_group9.h5
+  6_SE_data:
+    folder: data/train_data/basic\SE_data
+    files:
+    - group0/Adj.txt
+    - group0/SE.txt
+    - group1/Adj.txt
+    - group1/SE.txt
+    - group10/Adj.txt
+    - group10/SE.txt
+    - group2/Adj.txt
+    - group2/SE.txt
+    - group3/Adj.txt
+    - group3/SE.txt
+    - group4/Adj.txt
+    - group4/SE.txt
+    - group5/Adj.txt
+    - group5/SE.txt
+    - group6/Adj.txt
+    - group6/SE.txt
+    - group7/Adj.txt
+    - group7/SE.txt
+    - group8/Adj.txt
+    - group8/SE.txt
+    - group9/Adj.txt
+    - group9/SE.txt
