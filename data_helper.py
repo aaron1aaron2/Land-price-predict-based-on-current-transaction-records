@@ -42,15 +42,15 @@ def get_args():
     return args
 
 def get_distance_table(
-    df_target:pd.DataFrame, 
-    df_tran:pd.DataFrame, 
-    tran_coor_col:str,
-    target_coor_cols:list,
-    tran_id_col:str, 
-    group_id_col:str, 
-    output_folder:str, 
-    max_distance:int
-) -> list:
+        df_target:pd.DataFrame, 
+        df_tran:pd.DataFrame, 
+        tran_coor_col:str,
+        target_coor_cols:list,
+        tran_id_col:str, 
+        group_id_col:str, 
+        output_folder:str, 
+        max_distance:int
+    ) -> list:
 
     df_target = df_target[[group_id_col] + target_coor_cols].drop_duplicates()
     df_tran = df_tran[[tran_id_col, tran_coor_col]]
@@ -71,17 +71,18 @@ def get_distance_table(
         result.to_csv(os.path.join(output_folder, f'group{gp_id}_DIST.csv'), index=False)
 
 def get_customized_index(
-    distance_mat_folder:str, 
-    df_tran:pd.DataFrame, 
-    method:str, 
-    target_cols:list, 
-    target_value_col:str, 
-    id_col:str,
-    start_date:str, 
-    end_date:str, 
-    time_freq:str, 
-    dist_threshold:int
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+        distance_mat_folder:str, 
+        df_tran:pd.DataFrame, 
+        method:str, 
+        target_cols:list, 
+        target_value_col:str, 
+        id_col:str,
+        start_date:str, 
+        end_date:str, 
+        time_freq:str, 
+        dist_threshold:int,
+        fillna_method:str
+    ) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
     regional_index = RegionalIndex(start_date, end_date, time_freq, dist_threshold)
 
@@ -102,8 +103,12 @@ def get_customized_index(
 
         result, record = regional_index.get_index(
             df_distance, df_tran, 
-            method=method, target_value_col=target_value_col, 
-            dist_value_col=col, id_col=id_col)
+            method=method, 
+            target_value_col=target_value_col, 
+            dist_value_col=col, 
+            id_col=id_col,
+            fillna_method=fillna_method
+            )
 
         record.update({'file': gp_file})
         fill_result_dt_ls.append(record)
@@ -124,12 +129,12 @@ def get_customized_index(
     return result_df, pd.DataFrame(fill_result_dt_ls)
 
 def get_train_data(
-    df:pd.DataFrame, 
-    id_dt:dict, 
-    datetime_col:str, 
-    cus_format:str, 
-    target_value_cols:list
-) -> pd.DataFrame:
+        df:pd.DataFrame, 
+        id_dt:dict, 
+        datetime_col:str, 
+        cus_format:str, 
+        target_value_cols:list
+    ) -> pd.DataFrame:
 
     # 轉換成 datetime 格式
     df[datetime_col] = pd.to_datetime(df[datetime_col], format=cus_format)  
@@ -142,22 +147,22 @@ def get_train_data(
     return df
 
 def get_SE(
-    df:pd.DataFrame, 
-    output_folder:str, 
-    coordinate_col:str, 
-    id_col:str, 
-    group_col:str, 
-    distance_method:str, 
-    adj_threshold:float,
-    is_directed:bool,
-    p:float,
-    q:float,
-    num_walks:int, 
-    walk_length:int,
-    dimensions:int, 
-    window_size:int,
-    itertime:int,
-) -> None:
+        df:pd.DataFrame, 
+        output_folder:str, 
+        coordinate_col:str, 
+        id_col:str, 
+        group_col:str, 
+        distance_method:str, 
+        adj_threshold:float,
+        is_directed:bool,
+        p:float,
+        q:float,
+        num_walks:int, 
+        walk_length:int,
+        dimensions:int, 
+        window_size:int,
+        itertime:int,
+    ) -> None:
 
     Adj_file = os.path.join(output_folder, 'Adj.txt')
     SE_file = os.path.join(output_folder, 'SE.txt')
@@ -359,7 +364,8 @@ def main():
                         start_date=args['method']['4_index_start_date'], 
                         end_date=args['method']['4_index_end_date'], 
                         time_freq=args['method']['4_index_time_freq'], 
-                        dist_threshold=distance
+                        dist_threshold=distance,
+                        fillna_method=args['method']['4_fillna_method']
                     )
                     result_df.to_csv(output_file, index=False)
                     fillna_result.to_csv(output_file.replace('.csv', '_fillna.csv'), index=False)
