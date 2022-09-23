@@ -57,9 +57,9 @@ procces_record:
   step1: true
   step2: true
   step3: true
-  step4: false
-  step5: false
-  step6: false
+  step4: true
+  step5: true
+  step6: true
 output_files:
   1_target_land_group: data/train_data/transaction_amount/procces\1_target_land_group.csv
   2_reference_point: data/train_data/transaction_amount/procces\2_reference_point.csv
@@ -77,3 +77,74 @@ output_files:
     - group7_DIST.csv
     - group8_DIST.csv
     - group9_DIST.csv
+  4_regional_index:
+    folder: data/train_data/transaction_amount/procces\4_regional_index
+    files:
+    - count_1000.csv
+    - count_1000_fillna.csv
+    - count_2000.csv
+    - count_2000_fillna.csv
+    - count_3000.csv
+    - count_3000_fillna.csv
+  5_train_data:
+    folder: data/train_data/transaction_amount\train_data
+    files:
+    - count_group0_dist1000.h5
+    - count_group0_dist2000.h5
+    - count_group0_dist3000.h5
+    - count_group10_dist1000.h5
+    - count_group10_dist2000.h5
+    - count_group10_dist3000.h5
+    - count_group1_dist1000.h5
+    - count_group1_dist2000.h5
+    - count_group1_dist3000.h5
+    - count_group2_dist1000.h5
+    - count_group2_dist2000.h5
+    - count_group2_dist3000.h5
+    - count_group3_dist1000.h5
+    - count_group3_dist2000.h5
+    - count_group3_dist3000.h5
+    - count_group4_dist1000.h5
+    - count_group4_dist2000.h5
+    - count_group4_dist3000.h5
+    - count_group5_dist1000.h5
+    - count_group5_dist2000.h5
+    - count_group5_dist3000.h5
+    - count_group6_dist1000.h5
+    - count_group6_dist2000.h5
+    - count_group6_dist3000.h5
+    - count_group7_dist1000.h5
+    - count_group7_dist2000.h5
+    - count_group7_dist3000.h5
+    - count_group8_dist1000.h5
+    - count_group8_dist2000.h5
+    - count_group8_dist3000.h5
+    - count_group9_dist1000.h5
+    - count_group9_dist2000.h5
+    - count_group9_dist3000.h5
+    - id_table.csv
+  6_SE_data:
+    folder: data/train_data/transaction_amount\SE_data
+    files:
+    - group0/Adj.txt
+    - group0/SE.txt
+    - group1/Adj.txt
+    - group1/SE.txt
+    - group10/Adj.txt
+    - group10/SE.txt
+    - group2/Adj.txt
+    - group2/SE.txt
+    - group3/Adj.txt
+    - group3/SE.txt
+    - group4/Adj.txt
+    - group4/SE.txt
+    - group5/Adj.txt
+    - group5/SE.txt
+    - group6/Adj.txt
+    - group6/SE.txt
+    - group7/Adj.txt
+    - group7/SE.txt
+    - group8/Adj.txt
+    - group8/SE.txt
+    - group9/Adj.txt
+    - group9/SE.txt
