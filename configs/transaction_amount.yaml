@@ -27,8 +27,8 @@ column:
 
 # 輸出資料夾
 output_folder:
-  main: !!str data/train_data/basic
-  proc: !!str data/train_data/basic/procces
+  main: !!str data/train_data/transaction_amount
+  proc: !!str data/train_data/transaction_amount/procces
 
 # 方法參數
 method:
@@ -44,8 +44,12 @@ method:
   3_max_distance: !!int 10000 #公尺，目標點與參考點對該筆交易的距離上限，可節省儲存空間
   # step 4 --------
   4_index_method: !!seq # 統計指標或計算方式，可在 PropGman\method\regional_index.py 底下自行擴充
-    - 'mean' 
-  4_index_distance_threshold: !!int 3000 # 交易有效距離
+    - !!str 'count' 
+  4_index_distance_threshold: !!seq # 交易有效距離
+    - !!int 500
+    - !!int 1000 
+    - !!int 2000 
+    - !!int 3000 
   4_index_start_date: !!str '2012-7'
   4_index_end_date: !!str '2022-4'
   4_index_time_freq: !!str 'M' # 'M' 月，目前只支援月
