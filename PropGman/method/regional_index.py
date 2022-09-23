@@ -61,7 +61,9 @@ class RegionalIndex:
         df_tran_select[target_value_col] = df_tran_select[target_value_col].astype(float)
         df_tran_select['year'] = df_tran_select['year'].astype(int)
         df_tran_select['month'] = df_tran_select['month'].astype(int)
-
+        from IPython import embed
+        embed()
+        exit()
         if method=='mean':
             month_mean = df_tran_select.groupby(['year', 'month'])[target_value_col].mean()
         elif method=='count':
