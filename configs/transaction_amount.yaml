@@ -46,7 +46,6 @@ method:
   4_index_method: !!seq # 統計指標或計算方式，可在 PropGman\method\regional_index.py 底下自行擴充
     - !!str 'count' 
   4_index_distance_threshold: !!seq # 交易有效距離
-    - !!int 500
     - !!int 1000 
     - !!int 2000 
     - !!int 3000 
