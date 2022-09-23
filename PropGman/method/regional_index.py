@@ -43,13 +43,12 @@ class RegionalIndex:
             f_fill = df[col].fillna(method='ffill')
             b_fill = df[col].fillna(method='bfill')
 
-            df  = (f_fill + b_fill)/2
+            result  = (f_fill + b_fill)/2
 
-            unable_fill_na_num = df[df.isna()].shape[0]
+            unable_fill_na_num = result[result.isna()].shape[0]
 
         elif method=='zero':
-            df[col] = df[col].fillna(0)
-
+            result = df[col].fillna(0)
             unable_fill_na_num = 0
 
         record = {
@@ -59,7 +58,7 @@ class RegionalIndex:
             'unable_fill_na_rate':round(unable_fill_na_num/self.total_time_step, 2)
         }
 
-        return df, record
+        return result, record
 
     def get_index(
             self, 
