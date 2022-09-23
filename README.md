@@ -1,4 +1,4 @@
-# PropGman: Land-price-predict-based-on-transaction-records
+# PropGman: Regional-index-predict-based-on-transaction-records
 
 ## TO-DO
 - [x] 資料蒐集 & 清整
