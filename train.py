@@ -30,8 +30,8 @@ from PropGman.utils import build_folder, saveJson
 
 def get_args():
     parser = argparse.ArgumentParser()
-    # parser.add_argument('--time_slot', type=int, default=5,
-    #                     help='a time step is mins')
+    parser.add_argument('--time_slot', type=int, default=5,
+                        help='a time step is mins')
     parser.add_argument('--num_his', type=int, default=5,
                         help='history steps')
     parser.add_argument('--num_pred', type=int, default=1,
