@@ -6,8 +6,8 @@ sudo apt install git
 pip3 install virtualenv
 
 # 下載程式碼
-git clone https://github.com/aaron1aaron2/Land-price-predict-based-on-transaction-records.git
-cd Land-price-predict-based-on-transaction-records
+git clone https://github.com/aaron1aaron2/PropGman__Regional-index-predict-based-on-transaction-records.git
+cd PropGman__Regional-index-predict-based-on-transaction-records
 
 # 建立環境
 python3 -m virtualenv .venv
