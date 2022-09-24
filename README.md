@@ -34,8 +34,13 @@ python data_helper.py --config_path configs/Basic.yaml
 p.s. 可以到 *configs* 資料夾底下複製模板，並依自己的需求客製化自己的 config 檔。
 
 ### `Step3: 訓練模型`
-
-
+```shell
+scripts/train_basic.bat
+```
+or
+```shell
+source scripts/train_basic.sh
+```
 # Other information
 ## Our team
 |姓名|學校|系級|github|email|
