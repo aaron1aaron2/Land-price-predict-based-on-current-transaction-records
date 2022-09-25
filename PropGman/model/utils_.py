@@ -49,9 +49,7 @@ def seq2instance(data, num_his, num_pred):
 def load_data(args):
     # Traffic
     df = pd.read_hdf(args.traffic_file)
-    # if args.unuse_id!='':
-    #     unuse_id_ls = [int(i)for i in args.unuse_id.split(',')]
-    #     df = df[[i for i in df.columns if i not in unuse_id_ls]]
+
     data = np.array(df.values, dtype='int64') # 要資料格式不能市 object
     traffic = torch.from_numpy(data)
     # train/val/test
@@ -67,6 +65,9 @@ def load_data(args):
     valX, valY = seq2instance(val, args.num_his, args.num_pred)
     testX, testY = seq2instance(test, args.num_his, args.num_pred)
     # normalization
+    from IPython import embed
+    embed()
+    exit()
     mean, std = torch.mean(trainX), torch.std(trainX)
     trainX = (trainX - mean) / std
     valX = (valX - mean) / std
