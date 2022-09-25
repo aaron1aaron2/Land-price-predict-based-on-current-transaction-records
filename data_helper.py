@@ -27,8 +27,6 @@ from PropGman.method.land_group import LandGroup
 from PropGman.method.corrdinate_distance import get_distance
 from PropGman.method.regional_index import RegionalIndex
 
-from IPython import embed
-
 warnings.simplefilter(action="ignore", category=SettingWithCopyWarning)
 
 def get_args():
