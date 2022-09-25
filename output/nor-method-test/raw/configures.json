@@ -2,7 +2,6 @@
   "time_slot": 1440,
   "num_his": 5,
   "num_pred": 1,
-  "normalization_method": "raw",
   "L": 1,
   "K": 8,
   "d": 8,
