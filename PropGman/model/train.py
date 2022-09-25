@@ -45,12 +45,7 @@ def train(model, args, log, loss_criterion, optimizer, scheduler):
             if torch.cuda.is_available():
                 X, TE, label = X.to(args.device), TE.to(args.device), label.to(args.device)
             pred = model(X, TE)
-            
-            # 還原原始值
-            if args.normalization_method == 'zscore':
-                pred = pred * std + mean
-            elif args.normalization_method == 'log':
-                pred = torch.exp(pred)
+            pred = pred * std + mean
             
             loss_batch = loss_criterion(pred, label)
             train_loss += float(loss_batch) * (end_idx - start_idx)
@@ -80,10 +75,8 @@ def train(model, args, log, loss_criterion, optimizer, scheduler):
                     X, TE, label = X.to(args.device), TE.to(args.device), label.to(args.device)
                 pred = model(X, TE)
                 # 還原原始值
-                if args.normalization_method == 'zscore':
-                    pred = pred * std + mean
-                elif args.normalization_method == 'log':
-                    pred = torch.exp(pred)
+                pred = pred * std + mean
+
                 loss_batch = loss_criterion(pred, label)
                 val_loss += loss_batch * (end_idx - start_idx)
                 del X, TE, label, pred, loss_batch
