@@ -40,8 +40,10 @@ def test(args, log):
             del X, TE, pred_batch
         # trainPred = trainPred.cpu()
         trainPred = torch.from_numpy(np.concatenate(trainPred, axis=0))
-        trainPred = trainPred * std + mean
-
+        if args.normalization_method == 'z-score':
+            trainPred = trainPred * std + mean
+        elif args.normalization_method == 'log':
+            trainPred = torch.exp(trainPred)
         valPred = []
         for batch_idx in range(val_num_batch):
             start_idx = batch_idx * args.batch_size
@@ -56,7 +58,10 @@ def test(args, log):
             del X, TE, pred_batch
         # valPred = valPred.cpu()
         valPred = torch.from_numpy(np.concatenate(valPred, axis=0))
-        valPred = valPred * std + mean
+        if args.normalization_method == 'z-score':
+            valPred = valPred * std + mean
+        elif args.normalization_method == 'log':
+            valPred = torch.exp(valPred)
 
         testPred = []
         start_test = time.time()
@@ -72,7 +77,10 @@ def test(args, log):
             testPred.append(pred_batch.detach().cpu().clone())
             del X, TE, pred_batch
         testPred = torch.from_numpy(np.concatenate(testPred, axis=0))
-        testPred = testPred* std + mean
+        if args.normalization_method == 'z-score':
+            testPred = testPred * std + mean
+        elif args.normalization_method == 'log':
+            testPred = torch.exp(testPred)
     end_test = time.time()
 
     train_mae, train_rmse, train_mape = metric(trainPred, trainY)
