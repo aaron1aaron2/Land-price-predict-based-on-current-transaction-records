@@ -36,7 +36,7 @@ p.s. 可以到 *configs* 資料夾底下複製模板，並依自己的需求客�
 
 ### `Step3: 訓練模型`
 ```shell
-scripts/train_basic.bat
+scripts\train_basic.bat
 ```
 or
 ```shell
