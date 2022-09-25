@@ -37,7 +37,7 @@ def get_args():
     parser.add_argument('--num_pred', type=int, default=1,
                         help='prediction steps')
     parser.add_argument('--normalization_method', type=str, default='zscore',
-                        help='data normalization_method. (zscore、log)')
+                        help='data normalization_method. (z-score、log)')
 
     parser.add_argument('--L', type=int, default=1,
                         help='number of STAtt Blocks')

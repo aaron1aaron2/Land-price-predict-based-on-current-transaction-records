@@ -6,7 +6,7 @@ set SEfile="./data/train_data/basic/SE_data/group0/SE.txt"
 
 set output_folder_root="./output/nor-method-test/raw"
 python train.py --time_slot 1440 --num_his 5 --num_pred 1 --batch_size 24 ^
-        --max_epoch 100 --patience 100 --learning_rate 0.01 ^
+        --max_epoch 50 --patience 100 --learning_rate 0.01 ^
         --normalization_method raw ^
         --traffic_file %train_data% ^
         --SE_file %SEfile% ^
@@ -17,7 +17,7 @@ python train.py --time_slot 1440 --num_his 5 --num_pred 1 --batch_size 24 ^
 
 set output_folder_root="./output/nor-method-test/z-score"
 python train.py --time_slot 1440 --num_his 5 --num_pred 1 --batch_size 24 ^
-        --max_epoch 100 --patience 100 --learning_rate 0.01 ^
+        --max_epoch 50 --patience 100 --learning_rate 0.01 ^
         --normalization_method z-score ^
         --traffic_file %train_data% ^
         --SE_file %SEfile% ^
@@ -28,7 +28,7 @@ python train.py --time_slot 1440 --num_his 5 --num_pred 1 --batch_size 24 ^
 
 set output_folder_root="./output/nor-method-test/log"
 python train.py --time_slot 1440 --num_his 5 --num_pred 1 --batch_size 24 ^
-        --max_epoch 100 --patience 100 --learning_rate 0.01 ^
+        --max_epoch 50 --patience 100 --learning_rate 0.01 ^
         --normalization_method log ^
         --traffic_file %train_data% ^
         --SE_file %SEfile% ^
