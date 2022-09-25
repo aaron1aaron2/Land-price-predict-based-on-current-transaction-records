@@ -40,7 +40,7 @@ def test(args, log):
             del X, TE, pred_batch
         # trainPred = trainPred.cpu()
         trainPred = torch.from_numpy(np.concatenate(trainPred, axis=0))
-        if args.normalization_method == 'z-score':
+        if args.normalization_method == 'zscore':
             trainPred = trainPred * std + mean
         elif args.normalization_method == 'log':
             trainPred = torch.exp(trainPred)
@@ -58,7 +58,7 @@ def test(args, log):
             del X, TE, pred_batch
         # valPred = valPred.cpu()
         valPred = torch.from_numpy(np.concatenate(valPred, axis=0))
-        if args.normalization_method == 'z-score':
+        if args.normalization_method == 'zscore':
             valPred = valPred * std + mean
         elif args.normalization_method == 'log':
             valPred = torch.exp(valPred)
@@ -77,7 +77,7 @@ def test(args, log):
             testPred.append(pred_batch.detach().cpu().clone())
             del X, TE, pred_batch
         testPred = torch.from_numpy(np.concatenate(testPred, axis=0))
-        if args.normalization_method == 'z-score':
+        if args.normalization_method == 'zscore':
             testPred = testPred * std + mean
         elif args.normalization_method == 'log':
             testPred = torch.exp(testPred)

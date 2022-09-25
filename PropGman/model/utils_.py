@@ -66,7 +66,7 @@ def load_data(args):
     testX, testY = seq2instance(test, args.num_his, args.num_pred)
     # normalization
     mean, std = torch.mean(trainX), torch.std(trainX)
-    if args.normalization_method == 'z-score':
+    if args.normalization_method == 'zscore':
         trainX = (trainX - mean) / std
         valX = (valX - mean) / std
         testX = (testX - mean) / std
@@ -74,8 +74,6 @@ def load_data(args):
         trainX = torch.log(trainX)
         valX = torch.log(valX)
         testX = torch.log(testX)
-    elif args.normalization_method == 'raw':
-        pass
 
     # spatial embedding
     with open(args.SE_file, mode='r') as f:

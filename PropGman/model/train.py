@@ -47,7 +47,7 @@ def train(model, args, log, loss_criterion, optimizer, scheduler):
             pred = model(X, TE)
             
             # 還原原始值
-            if args.normalization_method == 'z-score':
+            if args.normalization_method == 'zscore':
                 pred = pred * std + mean
             elif args.normalization_method == 'log':
                 pred = torch.exp(pred)
@@ -80,7 +80,7 @@ def train(model, args, log, loss_criterion, optimizer, scheduler):
                     X, TE, label = X.to(args.device), TE.to(args.device), label.to(args.device)
                 pred = model(X, TE)
                 # 還原原始值
-                if args.normalization_method == 'z-score':
+                if args.normalization_method == 'zscore':
                     pred = pred * std + mean
                 elif args.normalization_method == 'log':
                     pred = torch.exp(pred)
