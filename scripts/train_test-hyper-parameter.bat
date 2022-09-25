@@ -8,7 +8,7 @@ set learning_rates=(0.01,0.001,0.0001)
 
 set train_data="./data/train_data/basic/train_data/mean_group0_dist3000.h5"
 set SEfile="./data/train_data/basic/SE_data/group0/SE.txt"
-set output_folder_root="./output/basic/group0"
+set output_folder_root="./output/test-hyper-parameter"
 
 for %%v in %vars% do (
     echo %%v
@@ -18,10 +18,10 @@ for %%v in %vars% do (
                     --max_epoch 50 --patience 100 --learning_rate 0.001 ^
                     --traffic_file %train_data% ^
                     --SE_file %SEfile% ^
-                    --model_file %output_folder_root%/model.pkl ^
-                    --log_file %output_folder_root%/log.txt ^
-                    --output_folder %output_folder_root% ^
-                    --device gpu
+                    --model_file %output_folder_root%/%%v/%%b/model.pkl ^
+                    --log_file %output_folder_root%/%%v/%%b/log.txt ^
+                    --output_folder %output_folder_root%/%%v/%%b/ ^
+                    --device cpu
         )     
     )
 
@@ -31,10 +31,10 @@ for %%v in %vars% do (
                     --max_epoch 50 --patience 100 --learning_rate %%l ^
                     --traffic_file %train_data% ^
                     --SE_file %SEfile% ^
-                    --model_file %output_folder_root%/model.pkl ^
-                    --log_file %output_folder_root%/log.txt ^
-                    --output_folder %output_folder_root% ^
-                    --device gpu
+                    --model_file %output_folder_root%/%%v/%%l/model.pkl ^
+                    --log_file %output_folder_root%/%%v/%%l/log.txt ^
+                    --output_folder %output_folder_root%/%%v/%%l ^
+                    --device cpu
         )
     )
 )
