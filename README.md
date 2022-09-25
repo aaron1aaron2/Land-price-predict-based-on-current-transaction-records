@@ -43,11 +43,11 @@ source scripts/train_basic.sh
 ```
 # Other information
 ## Our team
-|姓名|學校|系級|github|email|
-|-|-|-|-|-|
-|何彥南|國立政治大學(NCCU)|資科碩二(智慧計算組)|https://github.com/aaron1aaron2|aaron1aaron2@gmail.com|
-|莊崴宇|國立政治大學(NCCU)|資科碩二(一般組)|||
-|周倢因||||
+|姓名|學校|系級|github|
+|-|-|-|-|
+|何彥南|國立政治大學(NCCU)|資科碩二(智慧計算組)|https://github.com/aaron1aaron2|
+|莊崴宇|國立政治大學(NCCU)|資科碩二(一般組)||
+|周倢因|||
 
 ## Code Source (GMAN)
 [![](https://github-readme-stats.vercel.app/api/pin/?username=VincLee8188&repo=GMAN-PyTorch)](https://github.com/VincLee8188/GMAN-PyTorch)
