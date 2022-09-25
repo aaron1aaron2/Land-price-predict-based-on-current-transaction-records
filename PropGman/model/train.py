@@ -6,9 +6,8 @@ from .utils_ import load_data
 
 
 def train(model, args, log, loss_criterion, optimizer, scheduler):
-
     (trainX, trainTE, trainY, valX, valTE, valY, testX, testTE,
-     testY, SE, mean, std) = load_data(args)
+        testY, SE, mean, std) = load_data(args)
 
     num_train, _, num_vertex = trainX.shape
     log_string(log, '**** training model ****')
@@ -46,7 +45,13 @@ def train(model, args, log, loss_criterion, optimizer, scheduler):
             if torch.cuda.is_available():
                 X, TE, label = X.to(args.device), TE.to(args.device), label.to(args.device)
             pred = model(X, TE)
-            pred = pred * std + mean
+            
+            # 還原原始值
+            if args.normalization_method == 'z-score':
+                pred = pred * std + mean
+            elif args.normalization_method == 'log':
+                pred = torch.exp(pred)
+            
             loss_batch = loss_criterion(pred, label)
             train_loss += float(loss_batch) * (end_idx - start_idx)
             loss_batch.backward()
@@ -74,7 +79,11 @@ def train(model, args, log, loss_criterion, optimizer, scheduler):
                 if torch.cuda.is_available():
                     X, TE, label = X.to(args.device), TE.to(args.device), label.to(args.device)
                 pred = model(X, TE)
-                pred = pred * std + mean
+                # 還原原始值
+                if args.normalization_method == 'z-score':
+                    pred = pred * std + mean
+                elif args.normalization_method == 'log':
+                    pred = torch.exp(pred)
                 loss_batch = loss_criterion(pred, label)
                 val_loss += loss_batch * (end_idx - start_idx)
                 del X, TE, label, pred, loss_batch
