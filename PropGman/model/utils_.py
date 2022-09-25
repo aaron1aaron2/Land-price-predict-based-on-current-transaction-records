@@ -65,13 +65,17 @@ def load_data(args):
     valX, valY = seq2instance(val, args.num_his, args.num_pred)
     testX, testY = seq2instance(test, args.num_his, args.num_pred)
     # normalization
-    from IPython import embed
-    embed()
-    exit()
     mean, std = torch.mean(trainX), torch.std(trainX)
-    trainX = (trainX - mean) / std
-    valX = (valX - mean) / std
-    testX = (testX - mean) / std
+    if args.normalization_method == 'z-score':
+        trainX = (trainX - mean) / std
+        valX = (valX - mean) / std
+        testX = (testX - mean) / std
+    elif args.normalization_method == 'log':
+        trainX = torch.log(trainX)
+        valX = torch.log(valX)
+        testX = torch.log(testX)
+    elif args.normalization_method == 'raw':
+        pass
 
     # spatial embedding
     with open(args.SE_file, mode='r') as f:
