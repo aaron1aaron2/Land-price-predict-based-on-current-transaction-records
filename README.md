@@ -1,5 +1,6 @@
 # PropGman: Regional-index-predict-based-on-transaction-records
 
+![](img\流程圖.png)
 ## Taget 🎯 
 
 
@@ -25,8 +26,9 @@
     |-- train_data: 訓練用資料
 
 - output
-- doc
 - scripts: shell or batch 腳本，包含批次跑實驗、訓練範例
+- doc
+- img
 
 - requirements.txt: python 依賴套件
 - data_helper.py: 將輸入資料(data/input)依造參數設定檔(configs)轉換成訓練資料(data/train_data)
@@ -38,7 +40,7 @@
 git clone https://github.com/aaron1aaron2/PropGman__Regional-index-predict-based-on-transaction-records.git
 ```
 ### `pytorch`
-本專案是在 window 10、cuda(11.6)、pytorch(1.12.1)測試。
+本專案是在 window 11、cuda(11.6)、pytorch(1.12.1)測試。
 如使用不同環境請到 [pytorch 官網](https://pytorch.org/) 選擇對應版的指令。
 ```shell
 pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu116
