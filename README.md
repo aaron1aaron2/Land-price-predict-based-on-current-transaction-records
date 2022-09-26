@@ -7,12 +7,30 @@
 
 
 # Reproduce
-## Folder schema
+## 📁 Folder schema 
 ```
-data
+- PropGman
+    |-- method: 我們的方法
+    |-- model: 原始 gman code
+
+- EDA_and_preprocess
+    |-- code: 資料爬蟲、前處理、探勘過程
+        |--data_procces
+        |--method_procces
+        |--supplementary: 非過程中的其他參考程式碼
+
+- configs
+- data 
+    |-- input: 整理過的資料，包含目標土地 & 時價登入
+    |-- train_data: 訓練用資料
+
+- output
+- doc
+- scripts: shell or batch 腳本，包含批次跑實驗、訓練範例
+
 ```
 
-## Environment settings 🖥️
+## 🖥️ Environment settings 
 ### `code`
 ```shell
 git clone https://github.com/aaron1aaron2/PropGman__Regional-index-predict-based-on-transaction-records.git
@@ -28,7 +46,7 @@ pip3 install torch torchvision torchaudio --extra-index-url https://download.pyt
 ```shell
 pip3 install -r requirements.txt
 ```
-## Quick start 🙋
+## 🙋 Quick start 
 ### `Step1: 資料準備`
 主要資料位於 *data/input* 底下。
 - target.csv: 目標土地資料 + 土地經緯度
