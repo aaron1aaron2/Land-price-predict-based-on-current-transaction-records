@@ -7,16 +7,25 @@
 
 
 # Reproduce
+## Folder schema
+```
+data
+```
+
 ## Environment settings 🖥️
+### `code`
+```shell
+git clone https://github.com/aaron1aaron2/PropGman__Regional-index-predict-based-on-transaction-records.git
+```
 ### `pytorch`
 本專案是在 window 10、cuda(11.6)、pytorch(1.12.1)測試。
 如使用不同環境請到 [pytorch 官網](https://pytorch.org/) 選擇對應版的指令。
-```
+```shell
 pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu116
 ```
 
 ### `other packages`
-```
+```shell
 pip3 install -r requirements.txt
 ```
 ## Quick start 🙋
@@ -42,13 +51,14 @@ or
 ```shell
 source scripts/train_basic.sh
 ```
+p.s. *scripts* 底下有批次跑實驗模板，可以參考。
 # Other information
 ## Our team
 |姓名|學校|系級|github|
 |-|-|-|-|
 |何彥南|國立政治大學(NCCU)|資科碩二(智慧計算組)|https://github.com/aaron1aaron2|
 |莊崴宇|國立政治大學(NCCU)|資科碩二(一般組)||
-|周倢因|||
+|周倢因|國立台灣科技大學(NTUST)|資科碩二|
 
 ## Code Source (GMAN)
 [![](https://github-readme-stats.vercel.app/api/pin/?username=VincLee8188&repo=GMAN-PyTorch)](https://github.com/VincLee8188/GMAN-PyTorch)
