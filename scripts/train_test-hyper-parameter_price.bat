@@ -14,7 +14,7 @@ for %%v in %vars% do (
     echo %%v
     if %%v=="batch_size" (
         for %%b in %batch_sizes% do (
-            python train.py --time_slot 1440 --num_his 5 --num_pred 1 --batch_size %%b ^
+            python train.py --time_slot 1440 --num_his 3 --num_pred 1 --batch_size %%b ^
                     --max_epoch 50 --patience 100 --learning_rate 0.001 ^
                     --traffic_file %train_data% ^
                     --SE_file %SEfile% ^
@@ -27,7 +27,7 @@ for %%v in %vars% do (
 
     if %%v=="learning_rate" (
         for %%l in %learning_rates% do (
-            python train.py --time_slot 1440 --num_his 5 --num_pred 1 --batch_size 16 ^
+            python train.py --time_slot 1440 --num_his 3 --num_pred 1 --batch_size 16 ^
                     --max_epoch 50 --patience 100 --learning_rate %%l ^
                     --traffic_file %train_data% ^
                     --SE_file %SEfile% ^
