@@ -8,13 +8,13 @@ set learning_rates=(0.01,0.001,0.0001)
 
 set train_data="./data/train_data/transaction_amount/train_data/count_group0_dist3000.h5"
 set SEfile="./data/train_data/transaction_amount/SE_data/group0/SE.txt"
-set output_folder_root="./output/test-hyper-parameter(amount)"
+set output_folder_root="./output/test-hyper-parameter(amount)_"
 
 for %%v in %vars% do (
     echo %%v
     if %%v=="batch_size" (
         for %%b in %batch_sizes% do (
-            python train.py --time_slot 1440 --num_his 5 --num_pred 1 --batch_size %%b ^
+            python train.py --time_slot 1440 --num_his 3 --num_pred 1 --batch_size %%b ^
                     --max_epoch 50 --patience 100 --learning_rate 0.001 ^
                     --traffic_file %train_data% ^
                     --SE_file %SEfile% ^
@@ -27,7 +27,7 @@ for %%v in %vars% do (
 
     if %%v=="learning_rate" (
         for %%l in %learning_rates% do (
-            python train.py --time_slot 1440 --num_his 5 --num_pred 1 --batch_size 16 ^
+            python train.py --time_slot 1440 --num_his 3 --num_pred 1 --batch_size 16 ^
                     --max_epoch 50 --patience 100 --learning_rate %%l ^
                     --traffic_file %train_data% ^
                     --SE_file %SEfile% ^
