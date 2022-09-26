@@ -1,6 +1,6 @@
 # PropGman: Regional-index-predict-based-on-transaction-records
 
-![](img\流程圖.png)
+![](img/流程圖.png)
 ## Taget 🎯 
 
 
