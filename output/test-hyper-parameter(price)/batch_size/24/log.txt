@@ -1,0 +1,136 @@
+K=8, L=1, SE_file='./data/train_data/basic/SE_data/group0/SE.txt', batch_size=24, d=8, decay_epoch=10, device='cpu', learning_rate=0.001, log_file='./output/test-hyper-parameter(price)/batch_size/24/log.txt', max_epoch=50, model_file='./output/test-hyper-parameter(price)/batch_size/24/model.pkl', num_his=3, num_pred=1, output_folder='./output/test-hyper-parameter(price)/batch_size/24/', patience=100, test_ratio=0.1, time_slot=1440, traffic_file='./data/train_data/basic/train_data/mean_group0_dist3000.h5', train_ratio=0.8, val_ratio=0.1, view_batch_freq=100
+main output folder./output/test-hyper-parameter(price)/batch_size/24
+loading data...
+trainX: torch.Size([91, 3, 5])		 trainY: torch.Size([91, 1, 5])
+valX:   torch.Size([8, 3, 5])		valY:   torch.Size([8, 1, 5])
+testX:   torch.Size([9, 3, 5])		testY:   torch.Size([9, 1, 5])
+data loaded!
+compiling model...
+trainable parameters: 209,923
+**** training model ****
+2022-09-26 19:46:49 | epoch: 0001/50, training time: 0.4s, inference time: 0.0s
+train loss: 227923122.4615, val_loss: 166844096.0000
+val loss decrease from inf to 166844096.0000, saving model to ./output/test-hyper-parameter(price)/batch_size/24/model.pkl
+2022-09-26 19:46:49 | epoch: 0002/50, training time: 0.4s, inference time: 0.0s
+train loss: 122518795.9560, val_loss: 159669808.0000
+val loss decrease from 166844096.0000 to 159669808.0000, saving model to ./output/test-hyper-parameter(price)/batch_size/24/model.pkl
+2022-09-26 19:46:50 | epoch: 0003/50, training time: 0.4s, inference time: 0.0s
+train loss: 110728692.7473, val_loss: 157543328.0000
+val loss decrease from 159669808.0000 to 157543328.0000, saving model to ./output/test-hyper-parameter(price)/batch_size/24/model.pkl
+2022-09-26 19:46:50 | epoch: 0004/50, training time: 0.5s, inference time: 0.0s
+train loss: 94583006.7692, val_loss: 159012160.0000
+2022-09-26 19:46:51 | epoch: 0005/50, training time: 0.4s, inference time: 0.0s
+train loss: 82125206.6813, val_loss: 157122848.0000
+val loss decrease from 157543328.0000 to 157122848.0000, saving model to ./output/test-hyper-parameter(price)/batch_size/24/model.pkl
+2022-09-26 19:46:51 | epoch: 0006/50, training time: 0.5s, inference time: 0.0s
+train loss: 76785620.1319, val_loss: 152679968.0000
+val loss decrease from 157122848.0000 to 152679968.0000, saving model to ./output/test-hyper-parameter(price)/batch_size/24/model.pkl
+2022-09-26 19:46:52 | epoch: 0007/50, training time: 0.5s, inference time: 0.0s
+train loss: 69757462.0659, val_loss: 144684112.0000
+val loss decrease from 152679968.0000 to 144684112.0000, saving model to ./output/test-hyper-parameter(price)/batch_size/24/model.pkl
+2022-09-26 19:46:52 | epoch: 0008/50, training time: 0.4s, inference time: 0.0s
+train loss: 63387723.0769, val_loss: 137994416.0000
+val loss decrease from 144684112.0000 to 137994416.0000, saving model to ./output/test-hyper-parameter(price)/batch_size/24/model.pkl
+2022-09-26 19:46:53 | epoch: 0009/50, training time: 0.5s, inference time: 0.0s
+train loss: 54914913.1868, val_loss: 136732704.0000
+val loss decrease from 137994416.0000 to 136732704.0000, saving model to ./output/test-hyper-parameter(price)/batch_size/24/model.pkl
+2022-09-26 19:46:53 | epoch: 0010/50, training time: 0.6s, inference time: 0.0s
+train loss: 45225821.5385, val_loss: 135690240.0000
+val loss decrease from 136732704.0000 to 135690240.0000, saving model to ./output/test-hyper-parameter(price)/batch_size/24/model.pkl
+2022-09-26 19:46:54 | epoch: 0011/50, training time: 0.6s, inference time: 0.0s
+train loss: 42333570.1978, val_loss: 141094848.0000
+2022-09-26 19:46:55 | epoch: 0012/50, training time: 0.6s, inference time: 0.0s
+train loss: 39521320.6154, val_loss: 142706256.0000
+2022-09-26 19:46:55 | epoch: 0013/50, training time: 0.5s, inference time: 0.0s
+train loss: 32657443.1429, val_loss: 145661856.0000
+2022-09-26 19:46:56 | epoch: 0014/50, training time: 0.6s, inference time: 0.0s
+train loss: 34411954.3736, val_loss: 142996736.0000
+2022-09-26 19:46:56 | epoch: 0015/50, training time: 0.5s, inference time: 0.0s
+train loss: 33973870.6374, val_loss: 136601520.0000
+2022-09-26 19:46:57 | epoch: 0016/50, training time: 0.6s, inference time: 0.0s
+train loss: 24412888.9451, val_loss: 130241240.0000
+val loss decrease from 135690240.0000 to 130241240.0000, saving model to ./output/test-hyper-parameter(price)/batch_size/24/model.pkl
+2022-09-26 19:46:58 | epoch: 0017/50, training time: 0.6s, inference time: 0.0s
+train loss: 30528968.9231, val_loss: 117234984.0000
+val loss decrease from 130241240.0000 to 117234984.0000, saving model to ./output/test-hyper-parameter(price)/batch_size/24/model.pkl
+2022-09-26 19:46:58 | epoch: 0018/50, training time: 0.6s, inference time: 0.0s
+train loss: 28683419.6484, val_loss: 110129832.0000
+val loss decrease from 117234984.0000 to 110129832.0000, saving model to ./output/test-hyper-parameter(price)/batch_size/24/model.pkl
+2022-09-26 19:46:59 | epoch: 0019/50, training time: 0.6s, inference time: 0.0s
+train loss: 29733931.7802, val_loss: 121220480.0000
+2022-09-26 19:46:59 | epoch: 0020/50, training time: 0.5s, inference time: 0.0s
+train loss: 19859652.4176, val_loss: 133874576.0000
+2022-09-26 19:47:00 | epoch: 0021/50, training time: 0.6s, inference time: 0.0s
+train loss: 17942742.8791, val_loss: 140701376.0000
+2022-09-26 19:47:01 | epoch: 0022/50, training time: 0.5s, inference time: 0.0s
+train loss: 23669270.3516, val_loss: 137021216.0000
+2022-09-26 19:47:01 | epoch: 0023/50, training time: 0.6s, inference time: 0.0s
+train loss: 16743533.0549, val_loss: 141515936.0000
+2022-09-26 19:47:02 | epoch: 0024/50, training time: 0.5s, inference time: 0.0s
+train loss: 20119245.4066, val_loss: 142898640.0000
+2022-09-26 19:47:02 | epoch: 0025/50, training time: 0.5s, inference time: 0.0s
+train loss: 21693761.5385, val_loss: 136254368.0000
+2022-09-26 19:47:03 | epoch: 0026/50, training time: 0.6s, inference time: 0.0s
+train loss: 19344646.5934, val_loss: 140557616.0000
+2022-09-26 19:47:04 | epoch: 0027/50, training time: 0.6s, inference time: 0.0s
+train loss: 17287860.6044, val_loss: 152427392.0000
+2022-09-26 19:47:04 | epoch: 0028/50, training time: 0.6s, inference time: 0.0s
+train loss: 14642927.3626, val_loss: 151882096.0000
+2022-09-26 19:47:05 | epoch: 0029/50, training time: 0.5s, inference time: 0.0s
+train loss: 18698565.9780, val_loss: 137908336.0000
+2022-09-26 19:47:05 | epoch: 0030/50, training time: 0.6s, inference time: 0.0s
+train loss: 14510541.3846, val_loss: 136002736.0000
+2022-09-26 19:47:06 | epoch: 0031/50, training time: 0.6s, inference time: 0.0s
+train loss: 19409886.6593, val_loss: 140287952.0000
+2022-09-26 19:47:07 | epoch: 0032/50, training time: 0.6s, inference time: 0.0s
+train loss: 12330785.6374, val_loss: 142445328.0000
+2022-09-26 19:47:07 | epoch: 0033/50, training time: 0.6s, inference time: 0.0s
+train loss: 14038232.3956, val_loss: 140433152.0000
+2022-09-26 19:47:08 | epoch: 0034/50, training time: 0.6s, inference time: 0.0s
+train loss: 10848621.3516, val_loss: 146386944.0000
+2022-09-26 19:47:08 | epoch: 0035/50, training time: 0.6s, inference time: 0.0s
+train loss: 10089553.3187, val_loss: 155631952.0000
+2022-09-26 19:47:09 | epoch: 0036/50, training time: 0.5s, inference time: 0.0s
+train loss: 11597454.7912, val_loss: 154912400.0000
+2022-09-26 19:47:10 | epoch: 0037/50, training time: 0.6s, inference time: 0.0s
+train loss: 16494215.6484, val_loss: 152163200.0000
+2022-09-26 19:47:10 | epoch: 0038/50, training time: 0.6s, inference time: 0.0s
+train loss: 16236593.0659, val_loss: 157805984.0000
+2022-09-26 19:47:11 | epoch: 0039/50, training time: 0.6s, inference time: 0.0s
+train loss: 10571430.7747, val_loss: 158085600.0000
+2022-09-26 19:47:11 | epoch: 0040/50, training time: 0.6s, inference time: 0.0s
+train loss: 14327666.0549, val_loss: 149386624.0000
+2022-09-26 19:47:12 | epoch: 0041/50, training time: 0.5s, inference time: 0.0s
+train loss: 15655664.5055, val_loss: 144104784.0000
+2022-09-26 19:47:13 | epoch: 0042/50, training time: 0.6s, inference time: 0.0s
+train loss: 9454326.8791, val_loss: 137998352.0000
+2022-09-26 19:47:13 | epoch: 0043/50, training time: 0.6s, inference time: 0.0s
+train loss: 14838946.0000, val_loss: 139558224.0000
+2022-09-26 19:47:14 | epoch: 0044/50, training time: 0.6s, inference time: 0.0s
+train loss: 10563042.5604, val_loss: 140346144.0000
+2022-09-26 19:47:14 | epoch: 0045/50, training time: 0.5s, inference time: 0.0s
+train loss: 9164739.9121, val_loss: 145077280.0000
+2022-09-26 19:47:15 | epoch: 0046/50, training time: 0.6s, inference time: 0.0s
+train loss: 9210816.3187, val_loss: 143659232.0000
+2022-09-26 19:47:16 | epoch: 0047/50, training time: 0.6s, inference time: 0.0s
+train loss: 14034822.1319, val_loss: 142764096.0000
+2022-09-26 19:47:16 | epoch: 0048/50, training time: 0.6s, inference time: 0.0s
+train loss: 10517748.4945, val_loss: 147666528.0000
+2022-09-26 19:47:17 | epoch: 0049/50, training time: 0.6s, inference time: 0.0s
+train loss: 12099304.9231, val_loss: 150737184.0000
+2022-09-26 19:47:17 | epoch: 0050/50, training time: 0.6s, inference time: 0.0s
+train loss: 9326397.4066, val_loss: 150079680.0000
+Training and validation are completed, and model has been stored as ./output/test-hyper-parameter(price)/batch_size/24/model.pkl
+**** testing model ****
+loading model from ./output/test-hyper-parameter(price)/batch_size/24/model.pkl
+model restored!
+evaluating...
+testing time: 0.0s
+                MAE		RMSE		MAPE
+train            2385.37		3020.25		4.51%
+val              9203.10		12250.70		15.36%
+test             9543.23		11253.89		15.63%
+performance in each prediction step
+step: 01         9543.23		11253.89		15.63%
+average:         9543.23		11253.89		15.63%
+total time: 0.5min
