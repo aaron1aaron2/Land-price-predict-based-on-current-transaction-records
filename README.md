@@ -28,8 +28,10 @@
 - doc
 - scripts: shell or batch 腳本，包含批次跑實驗、訓練範例
 
+- requirements.txt: python 依賴套件
+- data_helper.py: 將輸入資料(data/input)依造參數設定檔(configs)轉換成訓練資料(data/train_data)
+- train.py: 主要訓練程式碼
 ```
-
 ## 🖥️ Environment settings 
 ### `code`
 ```shell
