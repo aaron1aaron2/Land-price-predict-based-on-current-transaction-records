@@ -43,9 +43,8 @@ def seq2instance_one(data, num_his, num_pred):
 
     for i in range(num_sample):
         x[i] = data[i: i + num_his]
-
         # y[i] = data[i + num_his: i + num_his + num_pred] # 原始多點預測
-        y[i][0] = data[i + num_his: i + num_his + num_pred][:,0]# 目標底是第一個位置
+        y[i][:,0] = data[i + num_his: i + num_his + num_pred][:,0]# 目標底是第一個位置
     return x, y
 
 def seq2instance(data, num_his, num_pred):
