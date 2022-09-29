@@ -94,8 +94,6 @@ if __name__ == '__main__':
     build_folder(fig_folder)
     
     # T = 24 * 60 // args.time_slot  # Number of time steps in one day
-    saveJson(args.__dict__, os.path.join(output_folder, 'configures.json'))
-
     log = open(args.log_file, 'w')
     log_string(log, str(args)[10: -1])
     log_string(log, f'main output folder{output_folder}')
@@ -109,8 +107,11 @@ if __name__ == '__main__':
     log_string(log, f'testX:   {testX.shape}\t\ttestY:   {testY.shape}')
     # log_string(log, f'mean:   {mean:.4f}\t\tstd:   {std:.4f}')
     log_string(log, 'data loaded!')
+    _, _, args.num_vertex = trainX.shape
     del trainX, trainTE, valX, valTE, testX, testTE
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+    saveJson(args.__dict__, os.path.join(output_folder, 'configures.json'))
 
     # build model >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     log_string(log, 'compiling model...')
