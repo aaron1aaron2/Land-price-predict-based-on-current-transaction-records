@@ -46,7 +46,7 @@ def train(model, args, log, loss_criterion, optimizer, scheduler):
                 X, TE, label = X.to(args.device), TE.to(args.device), label.to(args.device)
             pred = model(X, TE)
             pred = pred * std + mean
-            
+
             loss_batch = loss_criterion(pred, label)
             train_loss += float(loss_batch) * (end_idx - start_idx)
             loss_batch.backward()
