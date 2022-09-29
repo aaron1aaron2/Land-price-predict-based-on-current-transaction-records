@@ -3,7 +3,7 @@
 
 set vars=("batch_size","learning_rate")
 
-set batch_sizes=(4,8,16,24)
+set batch_sizes=(8,16,24)
 set learning_rates=(0.01,0.001,0.0001)
 
 set train_data="./data/train_data/transaction_amount/train_data/count_group0_dist3000.h5"
