@@ -342,7 +342,7 @@ class GMAN(nn.Module):
         self.FC_2 = FC(input_dims=[D, D], units=[D, 1], activations=[F.relu, None],
                        bn_decay=bn_decay)
         # 全連接層，集中預測
-        self.FC_final = NeuralNet(input_size=self.num_vertex, hidden_size=self.num_vertex, num_classes=self.num_pred)
+        self.FC_final = NeuralNet(input_size=self.num_vertex, hidden_size=self.num_vertex, num_classes=1)
         global DEVICE
         DEVICE = args.device
 
