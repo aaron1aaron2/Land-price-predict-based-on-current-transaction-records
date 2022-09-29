@@ -330,6 +330,9 @@ class GMAN(nn.Module):
         D = K * d
         self.SE = SE.to(args.device)
         self.num_his = args.num_his
+        self.num_pred = args.num_pred
+        self.num_vertex = args.num_vertex
+
         self.STEmbedding = STEmbedding(D, bn_decay)
         self.STAttBlock_1 = nn.ModuleList([STAttBlock(K, d, bn_decay) for _ in range(L)])
         self.STAttBlock_2 = nn.ModuleList([STAttBlock(K, d, bn_decay) for _ in range(L)])
@@ -338,6 +341,8 @@ class GMAN(nn.Module):
                        bn_decay=bn_decay)
         self.FC_2 = FC(input_dims=[D, D], units=[D, 1], activations=[F.relu, None],
                        bn_decay=bn_decay)
+        # 全連接層，集中預測
+        self.FC_final = NeuralNet(input_size=self.num_vertex, hidden_size=self.num_vertex, num_classes=self.num_pred)
         global DEVICE
         DEVICE = args.device
 
@@ -361,5 +366,22 @@ class GMAN(nn.Module):
             X = net(X, STE_pred)
         # output
         X = self.FC_2(X)
+
+        X = torch.squeeze(X, 3)
+
+        X = self.FC_final(X)
         del STE, STE_his, STE_pred
-        return torch.squeeze(X, 3)
+        return X
+
+class NeuralNet(nn.Module):
+    def __init__(self, input_size, hidden_size, num_classes):
+        super(NeuralNet, self).__init__()
+        self.fc1 = nn.Linear(input_size, hidden_size) 
+        self.relu = nn.ReLU()
+        self.fc2 = nn.Linear(hidden_size, num_classes)  
+    
+    def forward(self, x):
+        out = self.fc1(x)
+        out = self.relu(out)
+        out = self.fc2(out)
+        return out
