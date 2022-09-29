@@ -35,16 +35,30 @@ def metric(pred, label):
     return mae, rmse, mape
 
 
+def seq2instance_one(data, num_his, num_pred):
+    num_step, dims = data.shape
+    num_sample = num_step - num_his - num_pred + 1
+    x = torch.zeros(num_sample, num_his, dims)
+    y = torch.zeros(num_sample, num_pred, 1)
+
+    for i in range(num_sample):
+        x[i] = data[i: i + num_his]
+
+        # y[i] = data[i + num_his: i + num_his + num_pred] # 原始多點預測
+        y[i][0] = data[i + num_his: i + num_his + num_pred][:,0]# 目標底是第一個位置
+    return x, y
+
 def seq2instance(data, num_his, num_pred):
     num_step, dims = data.shape
     num_sample = num_step - num_his - num_pred + 1
     x = torch.zeros(num_sample, num_his, dims)
     y = torch.zeros(num_sample, num_pred, dims)
+
     for i in range(num_sample):
         x[i] = data[i: i + num_his]
-        y[i] = data[i + num_his: i + num_his + num_pred]
-    return x, y
+        y[i] = data[i + num_his: i + num_his + num_pred] # 原始多點預測
 
+    return x, y
 
 def load_data(args):
     # Traffic
@@ -60,10 +74,10 @@ def load_data(args):
     train = traffic[: train_steps]
     val = traffic[train_steps: train_steps + val_steps]
     test = traffic[-test_steps:]
-    # X, Y
-    trainX, trainY = seq2instance(train, args.num_his, args.num_pred)
-    valX, valY = seq2instance(val, args.num_his, args.num_pred)
-    testX, testY = seq2instance(test, args.num_his, args.num_pred)
+    # X, Y # 改成單目標
+    trainX, trainY = seq2instance_one(train, args.num_his, args.num_pred)
+    valX, valY = seq2instance_one(val, args.num_his, args.num_pred)
+    testX, testY = seq2instance_one(test, args.num_his, args.num_pred)
     # normalization
     mean, std = torch.mean(trainX), torch.std(trainX)
 
@@ -105,7 +119,7 @@ def load_data(args):
     testTE = torch.cat(testTE, 1).type(torch.int32)
 
     return (trainX, trainTE, trainY, valX, valTE, valY, testX, testTE, testY,
-            SE, mean, std)
+            SE, mean, std,)
 
 
 # dataset creation
