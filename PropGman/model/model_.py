@@ -68,8 +68,9 @@ class STEmbedding(nn.Module):
     retrun: [batch_size, num_his + num_pred, num_vertex, D]
     '''
 
-    def __init__(self, D, bn_decay):
+    def __init__(self, D, bn_decay, device):
         super(STEmbedding, self).__init__()
+        self.device = device
         self.FC_se = FC(
             input_dims=[D, D], units=[D, D], activations=[F.relu, None],
             bn_decay=bn_decay)
@@ -91,7 +92,7 @@ class STEmbedding(nn.Module):
             timeofday[j] = F.one_hot(TE[..., 1][j].to(torch.int64) % 288, T)
         TE = torch.cat((dayofweek, timeofday), dim=-1)
         TE = TE.unsqueeze(dim=2)
-        TE = self.FC_te(TE.to(DEVICE)) # 這邊不太懂為什麼 TE 不在 cuda 裡
+        TE = self.FC_te(TE.to(self.device)) # 這邊不太懂為什麼 TE 不在 cuda 裡
         del dayofweek, timeofday
         return SE + TE
 
@@ -333,7 +334,7 @@ class GMAN(nn.Module):
         self.num_pred = args.num_pred
         self.num_vertex = args.num_vertex
 
-        self.STEmbedding = STEmbedding(D, bn_decay)
+        self.STEmbedding = STEmbedding(D, bn_decay, args.device)
         self.STAttBlock_1 = nn.ModuleList([STAttBlock(K, d, bn_decay) for _ in range(L)])
         self.STAttBlock_2 = nn.ModuleList([STAttBlock(K, d, bn_decay) for _ in range(L)])
         self.transformAttention = transformAttention(K, d, bn_decay)
