@@ -108,6 +108,7 @@ if __name__ == '__main__':
     # log_string(log, f'mean:   {mean:.4f}\t\tstd:   {std:.4f}')
     log_string(log, 'data loaded!')
     _, _, args.num_vertex = trainX.shape
+    args.mean, args.std = float(mean.numpy()), float(std.numpy())
     del trainX, trainTE, valX, valTE, testX, testTE
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
