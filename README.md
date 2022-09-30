@@ -40,6 +40,25 @@
 | 10 | 7.9 | 10.5 | 0.6284 |
 |  |  | avg. | 0.706 |
 
+## `Demo`
+### input
+| year | month | group_center | refer_point1 | refer_point2 | refer_point3 | refer_point4 | group |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 2017 | 11 | 63555 | 57228 | 73875 | 63721 | 37824 | 0 |
+| 2017 | 12 | 47273 | 40341 | 49434 | 58276 | 32960 | 0 |
+| 2018 | 1 | 45804 | 60585 | 44698 | 46390 | 34342 | 0 |
+
+### answer
+| year | month | group_center | refer_point1 | refer_point2 | refer_point3 | refer_point4 | group |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 2018 | 2 | 72275 | 47830 | 61898 | 68448 | 57865 | 0 |
+
+### our predict
+```
+python demo.py
+```
+![](img/demo_res.png)
+
 # Reproduce
 ## 📁 Folder schema 
 ```
