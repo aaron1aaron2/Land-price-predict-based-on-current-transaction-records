@@ -17,7 +17,7 @@ def get_args():
     parser.add_argument('--model', type=str, default='output/basic/model.pkl')
     parser.add_argument('--config', type=str, default='output/basic/configures.json')
     parser.add_argument('--data', type=str, default='data/example.csv')
-    parser.add_argument('--target', type=str, default='2022-4')
+    parser.add_argument('--target', type=str, default='2018-2') # 答案是: 72274.79166666667
 
     args = parser.parse_args()
 
@@ -55,6 +55,7 @@ if __name__ == '__main__':
 
     with torch.no_grad():
         pred = model(X, TE)
+
         pred = pred*std + mean
 
         pred = pred.detach().cpu().clone()
