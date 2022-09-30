@@ -48,16 +48,14 @@
 | 2017 | 12 | 47273 | 40341 | 49434 | 58276 | 32960 | 0 |
 | 2018 | 1 | 45804 | 60585 | 44698 | 46390 | 34342 | 0 |
 
-### answer
-| year | month | group_center | refer_point1 | refer_point2 | refer_point3 | refer_point4 | group |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| 2018 | 2 | 72275 | 47830 | 61898 | 68448 | 57865 | 0 |
 
 ### our predict
 ```
 python demo.py
 ```
 ![](img/demo_res.png)
+
+ps. 答案為 72275，雖然差了1萬左右，但是以趨勢來看，表現不錯。
 
 # Reproduce
 ## 📁 Folder schema 
