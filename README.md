@@ -129,7 +129,7 @@ p.s. *scripts* 底下有批次跑實驗模板，可以參考。
 |姓名|學校|系級|github|
 |-|-|-|-|
 |何彥南|國立政治大學(NCCU)|資科碩二(智慧計算組)|https://github.com/aaron1aaron2|
-|莊崴宇|國立政治大學(NCCU)|資科碩二(一般組)||
+|莊崴宇|國立政治大學(NCCU)|資科碩二(一般組)||https://github.com/C-WeiYu|
 |周倢因|國立台灣科技大學(NTUST)|資科碩二|
 
 ## Code Source (GMAN)
